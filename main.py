@@ -22,9 +22,9 @@ logging.basicConfig(level=logging.INFO)
 
 @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
-    if message.text == 'start':
+    if message.text == '/start':
         await message.reply('start command issued')
-    elif message.text == 'help':
+    elif message.text == '/help':
         await message.reply('help command issued')
 
 
