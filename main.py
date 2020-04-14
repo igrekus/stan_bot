@@ -26,8 +26,9 @@ bot = Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot)
 
 quotes = {
-    0: {'text': '> чот нетак делоеш'},
+    0: {"text": "> чот нетак делоеш"},
     1: {"message_id": 129264, "text": "так все от него страдают"},
+    2: {"message_id": 129323, "text": "у меня лапки"}
 }
 
 
