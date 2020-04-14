@@ -19,6 +19,7 @@ token = creds['token']
 proxy = f'socks5://{px_user}:{px_pass}@{px_server}:{px_port}'
 PY_CHAT_ID = creds['py_chat']
 TEST_CHAT_ID = creds['test_chat']
+SELF_USER = creds['self_user']
 rules_link = 'https://docs.google.com/document/d/1DRhi1jzjQFqg4WRxeSY38I2W-1PQccJptQ8bmg-kEN8/edit'
 
 bot = Bot(token=token, proxy=proxy)
@@ -32,7 +33,7 @@ quotes = {
 
 @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
-    if message.chat.id != -364254365:
+    if message.chat.id != TEST_CHAT_ID or message.chat.id != SELF_USER:
         return
     if message.text == '/start':
         await message.reply('start command issued')
