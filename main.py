@@ -41,6 +41,15 @@ async def send_welcome(message: types.Message):
         await message.reply('help command issued')
 
 
+@dp.message_handler(regexp='/send*')
+async def send_welcome(message: types.Message):
+    if message.chat.id != 289682796:
+        return
+    if '/send py' in message.text:
+        s = message.text.lstrip('/send py')
+        await bot.send_message(PY_CHAT_ID, s)
+
+
 # @dp.message_handler(regexp='(^cat[s]?$|puss)')
 # async def cats(message: types.Message):
 #     with open('data/cats.jpg', 'rb') as photo:
