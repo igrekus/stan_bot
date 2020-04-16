@@ -51,26 +51,6 @@ async def send_welcome(message: types.Message):
         await bot.send_message(PY_CHAT_ID, s)
 
 
-# @dp.message_handler(regexp='(^cat[s]?$|puss)')
-# async def cats(message: types.Message):
-#     with open('data/cats.jpg', 'rb') as photo:
-#         await message.reply_photo(photo, caption='катан!!1 😺')
-
-
-@dp.inline_handler()
-async def inline_echo(inline_query: InlineQuery):
-    text = inline_query.query or 'echo'
-    input_content = InputTextMessageContent(text)
-    result_id: str = hashlib.md5(text.encode()).hexdigest()
-    item = InlineQueryResultArticle(
-        id=result_id,
-        title=f'Result {text!r}',
-        input_message_content=input_content,
-    )
-    # don't forget to set cache_time=1 for testing (default is 300s or 5m)
-    await bot.answer_inline_query(inline_query.id, results=[item], cache_time=1)
-
-
 @dp.message_handler()
 async def default_handler(message: types.Message):
     print(message)
