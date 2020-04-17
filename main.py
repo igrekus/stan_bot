@@ -98,7 +98,7 @@ async def default_handler(message: types.Message):
 `\\!help` \\- это сообщение
 ''', parse_mode='MarkdownV2', reply=False)
         elif message.text.lower() in ('!lutz', '!лутц'):
-            await message.reply('пссст, парень, нехочеш немножечко Лутцца?')
+            await message.reply(f'вот, не позорься: https://t.me/python_books_archive/565', reply=False)
 
 
 def main():
