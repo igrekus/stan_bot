@@ -4,7 +4,9 @@ import logging
 import random
 
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import InlineQueryResultArticle, InputTextMessageContent, InlineQuery
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+
+from middleware import rate_limit, ThrottlingMiddleware
 
 logging.basicConfig(level=logging.INFO)
 
@@ -22,8 +24,9 @@ TEST_CHAT_ID = creds['test_chat']
 SELF_USER = creds['self_user']
 rules_link = 'https://docs.google.com/document/d/1DRhi1jzjQFqg4WRxeSY38I2W-1PQccJptQ8bmg-kEN8/edit'
 
+storage = MemoryStorage()
 bot = Bot(token=token, proxy=proxy)
-dp = Dispatcher(bot)
+dp = Dispatcher(bot, storage=storage)
 
 quotes = {
     0: {"text": "чот нетак делоеш"},
@@ -33,6 +36,7 @@ quotes = {
 
 
 @dp.message_handler(commands=['start', 'help'])
+@rate_limit(5, 'start')
 async def send_welcome(message: types.Message):
     if message.chat.id != TEST_CHAT_ID or message.chat.id != SELF_USER:
         return
@@ -52,6 +56,7 @@ async def send_welcome(message: types.Message):
 
 
 @dp.message_handler()
+@rate_limit(5)
 async def default_handler(message: types.Message):
     print(message)
     # if message.chat.id == TEST_CHAT_ID:
@@ -71,6 +76,7 @@ async def default_handler(message: types.Message):
 
 def main():
     print('main')
+    dp.middleware.setup(ThrottlingMiddleware())
     executor.start_polling(dp, skip_updates=True)
 
 
