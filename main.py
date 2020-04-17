@@ -45,7 +45,7 @@ async def send_welcome(message: types.Message):
 
 @dp.message_handler(regexp='/send*')
 async def send_welcome(message: types.Message):
-    if message.chat.id != 289682796:
+    if message.chat.id != SELF_USER:
         return
     if '/send py' in message.text:
         s = message.text.lstrip('/send py')
