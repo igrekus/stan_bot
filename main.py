@@ -77,7 +77,10 @@ async def default_handler(message: types.Message):
     print(message)
     if message.chat.id == PY_CHAT_ID:
         if message.text in ('!rules', '!правила'):
-            await bot.send_message(PY_CHAT_ID, f'{message.from_user} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',  disable_web_page_preview=True)
+            name = f'@{message.from_user.username}'
+            if name == '@None':
+                name = f'{message.from_user.first_name}'
+            await bot.send_message(PY_CHAT_ID, f'{name} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',  disable_web_page_preview=True)
         elif message.text == '!quote':
             db_id = random.choice(list(quotes.keys()))
             try:
