@@ -24,15 +24,12 @@ TEST_CHAT_ID = creds['test_chat']
 SELF_USER = creds['self_user']
 rules_link = 'https://docs.google.com/document/d/1DRhi1jzjQFqg4WRxeSY38I2W-1PQccJptQ8bmg-kEN8/edit'
 
+with open('quotes.json', 'rt', encoding='utf-8') as f:
+    quotes = json.loads(''.join(f.readlines()))
+
 storage = MemoryStorage()
 bot = Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot, storage=storage)
-
-quotes = {
-    0: {"text": "чот нетак делоеш"},
-    1: {"message_id": 129264, "text": "так все от него страдают"},
-    2: {"message_id": 129323, "text": "у меня лапки"}
-}
 
 
 @dp.message_handler(commands=['start', 'help'])
