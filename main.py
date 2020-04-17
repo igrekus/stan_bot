@@ -52,9 +52,8 @@ async def send_welcome(message: types.Message):
         await bot.send_message(PY_CHAT_ID, s)
 
 
-@dp.message_handler(lambda msg: msg.text.startswith('!add'))
-@dp.message_handler(lambda msg: msg.chat.id == SELF_USER and msg["from"].id == SELF_USER)
-# @rate_limit(10)
+@dp.message_handler(lambda msg: msg.text.startswith('!add') and msg.chat.id == PY_CHAT_ID and msg["from"].id == SELF_USER)
+@rate_limit(10)
 async def pychan_quote_add(message: types.Message):
     logging.log(logging.INFO, f'!add received from {message.from_user} with text "{message.text}"')
     reply = message['reply_to_message']
