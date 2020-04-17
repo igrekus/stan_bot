@@ -88,8 +88,8 @@ async def default_handler(message: types.Message):
                 await bot.forward_message(PY_CHAT_ID, PY_CHAT_ID, msg_id)
             except KeyError:
                 msg_text = quotes[db_id]['text']
-                await message.reply(msg_text)
-        elif 'хауди' in message.text.lower:
+                await message.reply(msg_text, reply=False)
+        elif 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
             await message.reply('у нас тут таких не любят')
 
 
