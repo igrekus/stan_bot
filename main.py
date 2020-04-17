@@ -91,6 +91,14 @@ async def default_handler(message: types.Message):
                 await message.reply(msg_text, reply=False)
         elif 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
             await message.reply('у нас тут таких не любят')
+        elif message.text == '!help':
+            await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
+`\\!quote` \\- цитатка
+`\\!lutz`, `\\!лутц` \\- дать Лутцца
+`\\!help` \\- это сообщение
+''', parse_mode='MarkdownV2', reply=False)
+        elif message.text.lower() in ('!lutz', '!лутц'):
+            await message.reply('пссст, парень, нехочеш немножечко Лутцца?')
 
 
 def main():
