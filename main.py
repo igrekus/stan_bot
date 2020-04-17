@@ -52,6 +52,26 @@ async def send_welcome(message: types.Message):
         await bot.send_message(PY_CHAT_ID, s)
 
 
+@dp.message_handler(lambda msg: msg.text.startswith('!add'))
+@dp.message_handler(lambda msg: msg.chat.id == SELF_USER and msg["from"].id == SELF_USER)
+# @rate_limit(10)
+async def pychan_quote_add(message: types.Message):
+    logging.log(logging.INFO, f'!add received from {message.from_user} with text "{message.text}"')
+    reply = message['reply_to_message']
+    if reply:
+        new_quote = {'message_id': reply.message_id, 'text': reply.text}
+    else:
+        new_quote = {'text': message.text.lstrip('!add ')}
+
+    last_id = int(list(quotes.keys())[-1])
+    if new_quote['text']:
+        quotes[f'{last_id + 1}'] = new_quote
+        with open('quotes.json', 'wt', encoding='utf-8') as f:
+            json.dump(quotes, f, ensure_ascii=False)
+        logging.log(logging.INFO, f'Add quote "{new_quote}"')
+        await message.reply(f'добавил: {new_quote["text"]}', reply=False)
+
+
 @dp.message_handler()
 @rate_limit(5)
 async def default_handler(message: types.Message):
