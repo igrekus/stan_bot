@@ -38,9 +38,9 @@ async def send_welcome(message: types.Message):
     if message.chat.id != TEST_CHAT_ID or message.chat.id != SELF_USER:
         return
     if message.text == '/start':
-        await message.reply('start command issued')
+        await bot.send_message(message.chat.id, 'start command issued')
     elif message.text == '/help':
-        await message.reply('help command issued')
+        await bot.send_message(message.chat.id, 'help command issued')
 
 
 @dp.message_handler(regexp='/send*')
