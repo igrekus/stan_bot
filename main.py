@@ -52,13 +52,35 @@ async def send_welcome(message: types.Message):
         await bot.send_message(PY_CHAT_ID, s)
 
 
+@dp.message_handler(lambda msg: msg.text.startswith('!add') and msg.chat.id == PY_CHAT_ID and msg["from"].id == SELF_USER)
+@rate_limit(10)
+async def pychan_quote_add(message: types.Message):
+    logging.log(logging.INFO, f'!add received from {message.from_user} with text "{message.text}"')
+    reply = message['reply_to_message']
+    if reply:
+        new_quote = {'message_id': reply.message_id, 'text': reply.text}
+    else:
+        new_quote = {'text': message.text.lstrip('!add ')}
+
+    last_id = int(list(quotes.keys())[-1])
+    if new_quote['text']:
+        quotes[f'{last_id + 1}'] = new_quote
+        with open('quotes.json', 'wt', encoding='utf-8') as f:
+            json.dump(quotes, f, ensure_ascii=False)
+        logging.log(logging.INFO, f'Add quote "{new_quote}"')
+        await message.reply(f'добавил: {new_quote["text"]}', reply=False)
+
+
 @dp.message_handler()
 @rate_limit(5)
 async def default_handler(message: types.Message):
     print(message)
     if message.chat.id == PY_CHAT_ID:
         if message.text in ('!rules', '!правила'):
-            await bot.send_message(PY_CHAT_ID, f'{message.from_user} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',  disable_web_page_preview=True)
+            name = f'@{message.from_user.username}'
+            if name == '@None':
+                name = f'{message.from_user.first_name}'
+            await bot.send_message(PY_CHAT_ID, f'{name} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',  disable_web_page_preview=True)
         elif message.text == '!quote':
             db_id = random.choice(list(quotes.keys()))
             try:
@@ -66,8 +88,17 @@ async def default_handler(message: types.Message):
                 await bot.forward_message(PY_CHAT_ID, PY_CHAT_ID, msg_id)
             except KeyError:
                 msg_text = quotes[db_id]['text']
-                await message.reply(msg_text)
-        # elif message.text.startswith('!add'):
+                await message.reply(msg_text, reply=False)
+        elif 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
+            await message.reply('у нас тут таких не любят')
+        elif message.text == '!help':
+            await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
+`\\!quote` \\- цитатка
+`\\!lutz`, `\\!лутц` \\- дать Лутцца
+`\\!help` \\- это сообщение
+''', parse_mode='MarkdownV2', reply=False)
+        elif message.text.lower() in ('!lutz', '!лутц'):
+            await message.reply(f'вот, не позорься: https://t.me/python_books_archive/565', reply=False)
 
 
 def main():
