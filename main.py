@@ -56,8 +56,6 @@ async def send_welcome(message: types.Message):
 @rate_limit(5)
 async def default_handler(message: types.Message):
     print(message)
-    # if message.chat.id == TEST_CHAT_ID:
-    #     await bot.send_message(message.chat.id, f'fwd message: {message.text}')
     if message.chat.id == PY_CHAT_ID:
         if message.text in ('!rules', '!правила'):
             await bot.send_message(PY_CHAT_ID, f'{message.from_user} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',  disable_web_page_preview=True)
