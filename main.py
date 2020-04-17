@@ -87,7 +87,8 @@ async def default_handler(message: types.Message):
             except KeyError:
                 msg_text = quotes[db_id]['text']
                 await message.reply(msg_text)
-        # elif message.text.startswith('!add'):
+        elif 'хауди' in message.text.lower:
+            await message.reply('у нас тут таких не любят')
 
 
 def main():
