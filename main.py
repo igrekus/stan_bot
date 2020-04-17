@@ -35,7 +35,7 @@ dp = Dispatcher(bot, storage=storage)
 @dp.message_handler(commands=['start', 'help'])
 @rate_limit(5, 'start')
 async def send_welcome(message: types.Message):
-    if message.chat.id != TEST_CHAT_ID or message.chat.id != SELF_USER:
+    if message.chat.id != TEST_CHAT_ID and message.chat.id != SELF_USER:
         return
     if message.text == '/start':
         await bot.send_message(message.chat.id, 'start command issued')
@@ -67,6 +67,7 @@ async def default_handler(message: types.Message):
             except KeyError:
                 msg_text = quotes[db_id]['text']
                 await message.reply(msg_text)
+        # elif message.text.startswith('!add'):
 
 
 def main():
