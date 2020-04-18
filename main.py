@@ -31,6 +31,8 @@ storage = MemoryStorage()
 bot = Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot, storage=storage)
 
+bot_admins = [SELF_USER]
+
 
 @dp.message_handler(commands=['start', 'help'])
 @rate_limit(5, 'start')
@@ -43,13 +45,14 @@ async def send_welcome(message: types.Message):
         await bot.send_message(message.chat.id, 'help command issued')
 
 
-@dp.message_handler(regexp='/send*')
-async def send_welcome(message: types.Message):
-    if message.chat.id != SELF_USER:
-        return
+@dp.message_handler(lambda msg: msg.chat.id in bot_admins)
+async def handle_admin(message: types.Message):
     if '/send py' in message.text:
         s = message.text.lstrip('/send py')
+        print(s)
         await bot.send_message(PY_CHAT_ID, s)
+    else:
+        await pychan_quote_add(message)
 
 
 @dp.message_handler(lambda msg: msg.text.startswith('!add') and msg.chat.id == PY_CHAT_ID and msg["from"].id == SELF_USER)
