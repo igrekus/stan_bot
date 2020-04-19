@@ -117,7 +117,6 @@ async def rules_handler(message: types.Message):
 @rate_limit(5)
 async def help_handler(message: types.Message):
     await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
-`\\!quote` \\- цитатка
 `\\!lutz`, `\\!лутц` \\- дать Лутцца
 `\\!help` \\- это сообщение
 ''', parse_mode='MarkdownV2', reply=False)
