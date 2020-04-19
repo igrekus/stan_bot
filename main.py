@@ -121,11 +121,15 @@ async def quote_handler(message: types.Message):
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ('!rules', '!правила'))
 @rate_limit(5)
 async def rules_handler(message: types.Message):
+    await bot.send_message(PY_CHAT_ID, f'{get_user_link(message)} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',
+                           disable_web_page_preview=True)
+
+
+def get_user_link(message: types.Message):
     name = f'@{message.from_user.username}'
     if name == '@None':
         name = f'{message.from_user.first_name}'
-    await bot.send_message(PY_CHAT_ID, f'{name} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',
-                           disable_web_page_preview=True)
+    return name
 
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!help'))
