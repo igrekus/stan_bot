@@ -49,9 +49,25 @@ async def send_welcome(message: types.Message):
 async def handle_admin(message: types.Message):
     if '/send py' in message.text:
         s = message.text.lstrip('/send py')
-        print(s)
         await bot.send_message(PY_CHAT_ID, s)
-    else:
+    elif "!send" in message.text:
+        _, chat, msg = message.text.split(' ', 2)
+        await bot.send_message(int(chat), msg)
+    elif '!import' in message.text:
+        qs = 'a'
+        last_id = int(list(quotes.keys())[-1])
+        for q in qs.split('\n'):
+            id_, text = q.split('|')
+            new_quote = {
+                'message_id': int(id_.lstrip('message')),
+                'text': text
+            }
+            quotes[f'{last_id + 1}'] = new_quote
+            last_id += 1
+            logging.log(logging.INFO, f'Add quote "{new_quote}"')
+
+        with open('quotes.json', 'wt', encoding='utf-8') as f:
+            json.dump(quotes, f, ensure_ascii=False)
         await pychan_quote_add(message)
 
 
