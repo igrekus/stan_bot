@@ -131,10 +131,13 @@ async def lutz_handler(message: types.Message):
 
 @dp.message_handler()
 async def default_handler(message: types.Message):
-    print(message)
+    num = random.randint(1, 100)
+    print('>', num, message)
     if message.chat.id == PY_CHAT_ID:
         if 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
             await message.reply('у нас тут таких не любят')
+    if num < 6:
+        await quote_handler(message)
 
 
 def main():
