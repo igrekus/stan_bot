@@ -31,6 +31,8 @@ storage = MemoryStorage()
 bot = Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot, storage=storage)
 
+bot_admins = [SELF_USER]
+
 
 @dp.message_handler(commands=['start', 'help'])
 @rate_limit(5, 'start')
@@ -43,13 +45,31 @@ async def send_welcome(message: types.Message):
         await bot.send_message(message.chat.id, 'help command issued')
 
 
-@dp.message_handler(regexp='/send*')
-async def send_welcome(message: types.Message):
-    if message.chat.id != SELF_USER:
-        return
+@dp.message_handler(lambda msg: msg.chat.id in bot_admins)
+async def handle_admin(message: types.Message):
     if '/send py' in message.text:
         s = message.text.lstrip('/send py')
         await bot.send_message(PY_CHAT_ID, s)
+    elif "!send" in message.text:
+        _, chat, msg = message.text.split(' ', 2)
+        await bot.send_message(int(chat), msg)
+    elif '!import' in message.text:
+        qs = 'a'
+        last_id = int(list(quotes.keys())[-1])
+        for q in qs.split('\n'):
+            id_, text = q.split('|')
+            new_quote = {
+                'message_id': int(id_.lstrip('message')),
+                'text': text
+            }
+            quotes[f'{last_id + 1}'] = new_quote
+            last_id += 1
+            logging.log(logging.INFO, f'Add quote "{new_quote}"')
+
+        with open('quotes.json', 'wt', encoding='utf-8') as f:
+            json.dump(quotes, f, ensure_ascii=False)
+    elif '!add' in message.text:
+        await pychan_quote_add(message)
 
 
 @dp.message_handler(lambda msg: msg.text.startswith('!add') and msg.chat.id == PY_CHAT_ID and msg["from"].id == SELF_USER)
@@ -71,34 +91,50 @@ async def pychan_quote_add(message: types.Message):
         await message.reply(f'добавил: {new_quote["text"]}', reply=False)
 
 
-@dp.message_handler()
+@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!quote'))
 @rate_limit(5)
-async def default_handler(message: types.Message):
-    print(message)
-    if message.chat.id == PY_CHAT_ID:
-        if message.text in ('!rules', '!правила'):
-            name = f'@{message.from_user.username}'
-            if name == '@None':
-                name = f'{message.from_user.first_name}'
-            await bot.send_message(PY_CHAT_ID, f'{name} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',  disable_web_page_preview=True)
-        elif message.text == '!quote':
-            db_id = random.choice(list(quotes.keys()))
-            try:
-                msg_id = quotes[db_id]['message_id']
-                await bot.forward_message(PY_CHAT_ID, PY_CHAT_ID, msg_id)
-            except KeyError:
-                msg_text = quotes[db_id]['text']
-                await message.reply(msg_text, reply=False)
-        elif 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
-            await message.reply('у нас тут таких не любят')
-        elif message.text == '!help':
-            await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
+async def quote_handler(message: types.Message):
+    db_id = random.choice(list(quotes.keys()))
+    try:
+        msg_id = quotes[db_id]['message_id']
+        await bot.forward_message(PY_CHAT_ID, PY_CHAT_ID, msg_id)
+    except KeyError:
+        msg_text = quotes[db_id]['text']
+        await message.reply(msg_text, reply=False)
+
+
+@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ('!rules', '!правила'))
+@rate_limit(5)
+async def rules_handler(message: types.Message):
+    name = f'@{message.from_user.username}'
+    if name == '@None':
+        name = f'{message.from_user.first_name}'
+    await bot.send_message(PY_CHAT_ID, f'{name} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',
+                           disable_web_page_preview=True)
+
+
+@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!help'))
+@rate_limit(5)
+async def help_handler(message: types.Message):
+    await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
 `\\!quote` \\- цитатка
 `\\!lutz`, `\\!лутц` \\- дать Лутцца
 `\\!help` \\- это сообщение
 ''', parse_mode='MarkdownV2', reply=False)
-        elif message.text.lower() in ('!lutz', '!лутц'):
-            await message.reply(f'вот, не позорься: https://t.me/python_books_archive/565', reply=False)
+
+
+@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!lutz', '!лутц'))
+@rate_limit(5)
+async def lutz_handler(message: types.Message):
+    await message.reply(f'вот, не позорься: https://t.me/python_books_archive/565', reply=False)
+
+
+@dp.message_handler()
+async def default_handler(message: types.Message):
+    print(message)
+    if message.chat.id == PY_CHAT_ID:
+        if 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
+            await message.reply('у нас тут таких не любят')
 
 
 def main():
