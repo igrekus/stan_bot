@@ -22,7 +22,9 @@ proxy = f'socks5://{px_user}:{px_pass}@{px_server}:{px_port}'
 PY_CHAT_ID = creds['py_chat']
 TEST_CHAT_ID = creds['test_chat']
 SELF_USER = creds['self_user']
+
 rules_link = 'https://docs.google.com/document/d/1DRhi1jzjQFqg4WRxeSY38I2W-1PQccJptQ8bmg-kEN8/edit'
+engine_link = 'https://lmgtfy.com/?q='
 
 with open('quotes.json', 'rt', encoding='utf-8') as f:
     quotes = json.loads(''.join(f.readlines()))
@@ -89,6 +91,19 @@ async def pychan_quote_add(message: types.Message):
             json.dump(quotes, f, ensure_ascii=False)
         logging.log(logging.INFO, f'Add quote "{new_quote}"')
         await message.reply(f'добавил: {new_quote["text"]}', reply=False)
+
+
+@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!lmgtfy'))
+@rate_limit(5)
+async def lmgtfy_handler(message: types.Message):
+    reply = message['reply_to_message']
+    if reply:
+        query = f'{engine_link}{"+".join(message.reply_to_message.text.split(" "))}'
+        id_ = message.reply_to_message.message_id
+    else:
+        query = f'{engine_link}{"+".join(message.text.lstrip("!lmgtfy ").split(" "))}'
+        id_ = message.message_id
+    await bot.send_message(message.chat.id, query, disable_web_page_preview=True, reply_to_message_id=id_)
 
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!quote'))
