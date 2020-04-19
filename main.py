@@ -22,7 +22,9 @@ proxy = f'socks5://{px_user}:{px_pass}@{px_server}:{px_port}'
 PY_CHAT_ID = creds['py_chat']
 TEST_CHAT_ID = creds['test_chat']
 SELF_USER = creds['self_user']
+
 rules_link = 'https://docs.google.com/document/d/1DRhi1jzjQFqg4WRxeSY38I2W-1PQccJptQ8bmg-kEN8/edit'
+engine_link = 'https://lmgtfy.com/?q='
 
 with open('quotes.json', 'rt', encoding='utf-8') as f:
     quotes = json.loads(''.join(f.readlines()))
@@ -91,6 +93,19 @@ async def pychan_quote_add(message: types.Message):
         await message.reply(f'добавил: {new_quote["text"]}', reply=False)
 
 
+@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!lmgtfy'))
+@rate_limit(5)
+async def lmgtfy_handler(message: types.Message):
+    reply = message['reply_to_message']
+    if reply:
+        query = f'{engine_link}{"+".join(message.reply_to_message.text.split(" "))}'
+        id_ = message.reply_to_message.message_id
+    else:
+        query = f'{engine_link}{"+".join(message.text.lstrip("!lmgtfy ").split(" "))}'
+        id_ = message.message_id
+    await bot.send_message(message.chat.id, query, disable_web_page_preview=True, reply_to_message_id=id_)
+
+
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!quote'))
 @rate_limit(5)
 async def quote_handler(message: types.Message):
@@ -106,18 +121,21 @@ async def quote_handler(message: types.Message):
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ('!rules', '!правила'))
 @rate_limit(5)
 async def rules_handler(message: types.Message):
+    await bot.send_message(PY_CHAT_ID, f'{get_user_link(message)} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',
+                           disable_web_page_preview=True)
+
+
+def get_user_link(message: types.Message):
     name = f'@{message.from_user.username}'
     if name == '@None':
         name = f'{message.from_user.first_name}'
-    await bot.send_message(PY_CHAT_ID, f'{name} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',
-                           disable_web_page_preview=True)
+    return name
 
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!help'))
 @rate_limit(5)
 async def help_handler(message: types.Message):
     await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
-`\\!quote` \\- цитатка
 `\\!lutz`, `\\!лутц` \\- дать Лутцца
 `\\!help` \\- это сообщение
 ''', parse_mode='MarkdownV2', reply=False)
@@ -131,10 +149,13 @@ async def lutz_handler(message: types.Message):
 
 @dp.message_handler()
 async def default_handler(message: types.Message):
-    print(message)
+    num = random.randint(1, 100)
+    print('>', num, message)
     if message.chat.id == PY_CHAT_ID:
         if 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
             await message.reply('у нас тут таких не любят')
+    if num < 6:
+        await quote_handler(message)
 
 
 def main():
