@@ -68,6 +68,7 @@ async def handle_admin(message: types.Message):
 
         with open('quotes.json', 'wt', encoding='utf-8') as f:
             json.dump(quotes, f, ensure_ascii=False)
+    elif '!add' in message.text:
         await pychan_quote_add(message)
 
 
