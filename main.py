@@ -121,8 +121,13 @@ async def quote_handler(message: types.Message):
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ('!rules', '!правила'))
 @rate_limit(5)
 async def rules_handler(message: types.Message):
-    await bot.send_message(PY_CHAT_ID, f'{get_user_link(message)} [сюда]({rules_link}) читай', parse_mode='MarkdownV2',
-                           disable_web_page_preview=True)
+    reply = message['reply_to_message']
+    if reply:
+        id_ = message.reply_to_message.message_id
+    else:
+        id_ = message.message_id
+    await bot.send_message(PY_CHAT_ID, f'[сюда]({rules_link}) читай',
+                           parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
 
 
 def get_user_link(message: types.Message):
@@ -137,6 +142,7 @@ def get_user_link(message: types.Message):
 async def help_handler(message: types.Message):
     await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
 `\\!lutz`, `\\!лутц` \\- дать Лутцца
+`\\!django`, `\\!джанго` \\- дать Джангца
 `\\!help` \\- это сообщение
 ''', parse_mode='MarkdownV2', reply=False)
 
@@ -147,6 +153,12 @@ async def lutz_handler(message: types.Message):
     await message.reply(f'вот, не позорься: https://t.me/python_books_archive/565', reply=False)
 
 
+@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!django', '!джанго'))
+@rate_limit(5)
+async def django_handler(message: types.Message):
+    await message.reply(f'держи, поискал за тебя: https://t.me/c/1338616632/133706', reply=False)
+
+
 @dp.message_handler()
 async def default_handler(message: types.Message):
     num = random.randint(1, 100)
@@ -154,7 +166,7 @@ async def default_handler(message: types.Message):
     if message.chat.id == PY_CHAT_ID:
         if 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
             await message.reply('у нас тут таких не любят')
-    if num < 6:
+    if num < 2:
         await quote_handler(message)
 
 
