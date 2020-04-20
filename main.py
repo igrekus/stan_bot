@@ -166,7 +166,7 @@ async def default_handler(message: types.Message):
     if message.chat.id == PY_CHAT_ID:
         if 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
             await message.reply('у нас тут таких не любят')
-    if num < 6:
+    if num < 2:
         await quote_handler(message)
 
 
