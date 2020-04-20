@@ -142,6 +142,7 @@ def get_user_link(message: types.Message):
 async def help_handler(message: types.Message):
     await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
 `\\!lutz`, `\\!лутц` \\- дать Лутцца
+`\\!django`, `\\!джанго` \\- дать Джангца
 `\\!help` \\- это сообщение
 ''', parse_mode='MarkdownV2', reply=False)
 
@@ -150,6 +151,12 @@ async def help_handler(message: types.Message):
 @rate_limit(5)
 async def lutz_handler(message: types.Message):
     await message.reply(f'вот, не позорься: https://t.me/python_books_archive/565', reply=False)
+
+
+@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!django', '!джанго'))
+@rate_limit(5)
+async def django_handler(message: types.Message):
+    await message.reply(f'держи, поискал за тебя: https://t.me/c/1338616632/133706', reply=False)
 
 
 @dp.message_handler()
