@@ -109,7 +109,15 @@ async def lmgtfy_handler(message: types.Message):
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!quote'))
 @rate_limit(5)
 async def quote_handler(message: types.Message):
-    db_id = random.choice(list(quotes.keys()))
+    query = ''
+    try:
+        _, query = message.text.split(' ', 1)
+    except ValueError:
+        pass
+    db = quotes
+    if query:
+        db = {k: v for k, v in quotes.items() if query in v}
+    db_id = random.choice(list(db.keys()))
     try:
         msg_id = quotes[db_id]['message_id']
         await bot.forward_message(PY_CHAT_ID, PY_CHAT_ID, msg_id)
