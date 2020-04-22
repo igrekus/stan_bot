@@ -87,11 +87,8 @@ async def pychan_quote_add(message: types.Message):
     else:
         new_quote = {'text': message.text.lstrip('!add ')}
 
-    last_id = int(list(quotes.keys())[-1])
     if new_quote['text']:
-        quotes[f'{last_id + 1}'] = new_quote
-        with open('quotes.json', 'wt', encoding='utf-8') as f:
-            json.dump(quotes, f, ensure_ascii=False)
+        qdb.add(new_quote)
         logging.log(logging.INFO, f'Add quote "{new_quote}"')
         await message.reply(f'добавил: {new_quote["text"]}', reply=False)
 
@@ -118,7 +115,8 @@ async def quote_handler(message: types.Message):
     #     _, query = message.text.split(' ', 1)
     # except ValueError:
     #     pass
-    _, msg_id, text = qdb.quote
+    id_, msg_id, text = qdb.quote
+    logging.info(f'Send quote id={id_} text={text}')
     if msg_id:
         await bot.forward_message(message.chat.id, message.chat.id, msg_id)
     else:
