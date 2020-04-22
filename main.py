@@ -158,7 +158,11 @@ async def help_handler(message: types.Message):
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!lutz', '!лутц'))
 @rate_limit(5)
 async def lutz_handler(message: types.Message):
-    await message.reply(f'вот, не позорься: https://t.me/python_books_archive/565', reply=False)
+    reply = message['reply_to_message']
+    msg = message
+    if reply:
+        msg = message.reply_to_message
+    await bot.send_message(message.chat.id, f'{get_user_link(msg)} вот, не позорься: https://t.me/python_books_archive/565')
 
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!django', '!джанго'))
