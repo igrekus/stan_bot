@@ -109,7 +109,15 @@ async def lmgtfy_handler(message: types.Message):
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!quote'))
 @rate_limit(5)
 async def quote_handler(message: types.Message):
-    db_id = random.choice(list(quotes.keys()))
+    query = ''
+    try:
+        _, query = message.text.split(' ', 1)
+    except ValueError:
+        pass
+    db = quotes
+    if query:
+        db = {k: v for k, v in quotes.items() if query in v}
+    db_id = random.choice(list(db.keys()))
     try:
         msg_id = quotes[db_id]['message_id']
         await bot.forward_message(PY_CHAT_ID, PY_CHAT_ID, msg_id)
@@ -127,6 +135,18 @@ async def rules_handler(message: types.Message):
     else:
         id_ = message.message_id
     await bot.send_message(PY_CHAT_ID, f'[сюда]({rules_link}) читай',
+                           parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
+
+
+@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ['!nometa'])
+@rate_limit(5)
+async def rules_handler(message: types.Message):
+    reply = message['reply_to_message']
+    if reply:
+        id_ = message.reply_to_message.message_id
+    else:
+        id_ = message.message_id
+    await bot.send_message(PY_CHAT_ID, f'[nometa.xyz](nometa.xyz)',
                            parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
 
 
@@ -150,7 +170,11 @@ async def help_handler(message: types.Message):
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!lutz', '!лутц'))
 @rate_limit(5)
 async def lutz_handler(message: types.Message):
-    await message.reply(f'вот, не позорься: https://t.me/python_books_archive/565', reply=False)
+    reply = message['reply_to_message']
+    msg = message
+    if reply:
+        msg = message.reply_to_message
+    await bot.send_message(message.chat.id, f'{get_user_link(msg)} вот, не позорься: https://t.me/python_books_archive/565')
 
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!django', '!джанго'))
