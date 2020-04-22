@@ -138,6 +138,18 @@ async def rules_handler(message: types.Message):
                            parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
 
 
+@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ['!nometa'])
+@rate_limit(5)
+async def rules_handler(message: types.Message):
+    reply = message['reply_to_message']
+    if reply:
+        id_ = message.reply_to_message.message_id
+    else:
+        id_ = message.message_id
+    await bot.send_message(PY_CHAT_ID, f'[nometa.xyz](nometa.xyz)',
+                           parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
+
+
 def get_user_link(message: types.Message):
     name = f'@{message.from_user.username}'
     if name == '@None':
