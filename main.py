@@ -145,7 +145,7 @@ async def rules_handler(message: types.Message):
         id_ = message.reply_to_message.message_id
     else:
         id_ = message.message_id
-    await bot.send_message(PY_CHAT_ID, f'[nometa.xyz](nometa.xyz)',
+    await bot.send_message(PY_CHAT_ID, f'[nometa\\.xyz](http://nometa.xyz)',
                            parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
 
 
