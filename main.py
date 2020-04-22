@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from middleware import rate_limit, ThrottlingMiddleware
+from quotedb import QuoteDB
 
 logging.basicConfig(level=logging.INFO)
 
@@ -28,6 +29,8 @@ engine_link = 'https://lmgtfy.com/?q='
 
 with open('quotes.json', 'rt', encoding='utf-8') as f:
     quotes = json.loads(''.join(f.readlines()))
+
+qdb = QuoteDB()
 
 storage = MemoryStorage()
 bot = Bot(token=token, proxy=proxy)
@@ -109,21 +112,17 @@ async def lmgtfy_handler(message: types.Message):
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!quote'))
 @rate_limit(5)
 async def quote_handler(message: types.Message):
-    query = ''
-    try:
-        _, query = message.text.split(' ', 1)
-    except ValueError:
-        pass
-    db = quotes
-    if query:
-        db = {k: v for k, v in quotes.items() if query in v}
-    db_id = random.choice(list(db.keys()))
-    try:
-        msg_id = quotes[db_id]['message_id']
-        await bot.forward_message(PY_CHAT_ID, PY_CHAT_ID, msg_id)
-    except KeyError:
-        msg_text = quotes[db_id]['text']
-        await message.reply(msg_text, reply=False)
+    # TODO rewrite !quote query for new db
+    # query = ''
+    # try:
+    #     _, query = message.text.split(' ', 1)
+    # except ValueError:
+    #     pass
+    _, msg_id, text = qdb.quote
+    if msg_id:
+        await bot.forward_message(message.chat.id, message.chat.id, msg_id)
+    else:
+        await message.reply(text, reply=False)
 
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ('!rules', '!правила'))
