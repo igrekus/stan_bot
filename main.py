@@ -26,6 +26,8 @@ SELF_USER = creds['self_user']
 
 rules_link = 'https://docs.google.com/document/d/1DRhi1jzjQFqg4WRxeSY38I2W-1PQccJptQ8bmg-kEN8/edit'
 engine_link = 'https://lmgtfy.com/?q='
+lat_rus_map = {ord(l): r for l, r in zip("f,dult`;pbqrkvyjghcnea[wxio]sm'.z",
+                                         "абвгдеёжзийклмнопрстуфхцчшщъыьэюя")}
 
 with open('quotes.json', 'rt', encoding='utf-8') as f:
     quotes = json.loads(''.join(f.readlines()))
@@ -87,13 +89,18 @@ async def pychan_quote_add(message: types.Message):
     else:
         new_quote = {'text': message.text.lstrip('!add ')}
 
-    last_id = int(list(quotes.keys())[-1])
     if new_quote['text']:
-        quotes[f'{last_id + 1}'] = new_quote
-        with open('quotes.json', 'wt', encoding='utf-8') as f:
-            json.dump(quotes, f, ensure_ascii=False)
+        qdb.add(new_quote)
         logging.log(logging.INFO, f'Add quote "{new_quote}"')
         await message.reply(f'добавил: {new_quote["text"]}', reply=False)
+
+
+@dp.message_handler(lambda msg: msg.text.startswith('!tr') and msg.chat.id == PY_CHAT_ID)
+@rate_limit(10)
+async def translate_handler(message: types.Message):
+    ungarbled = message.reply_to_message.text.translate(lat_rus_map)
+    if ungarbled:
+        await bot.send_message(message.chat.id, ungarbled, reply_to_message_id=message.message_id)
 
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!lmgtfy'))
@@ -118,7 +125,8 @@ async def quote_handler(message: types.Message):
     #     _, query = message.text.split(' ', 1)
     # except ValueError:
     #     pass
-    _, msg_id, text = qdb.quote
+    id_, msg_id, text = qdb.quote
+    logging.info(f'Send quote id={id_} text={text}')
     if msg_id:
         await bot.forward_message(message.chat.id, message.chat.id, msg_id)
     else:
@@ -187,7 +195,8 @@ async def default_handler(message: types.Message):
     num = random.randint(1, 100)
     print('>', num, message)
     if message.chat.id == PY_CHAT_ID:
-        if 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
+        lowered = message.text.lower()
+        if 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered:
             await message.reply('у нас тут таких не любят')
     if num < 2:
         await quote_handler(message)
