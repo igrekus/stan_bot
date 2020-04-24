@@ -198,7 +198,7 @@ async def default_handler(message: types.Message):
         lowered = message.text.lower()
         if 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered:
             await message.reply('у нас тут таких не любят')
-    if num < 3:
+    if num < 2:
         await quote_handler(message)
 
 
