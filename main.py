@@ -26,6 +26,8 @@ SELF_USER = creds['self_user']
 
 rules_link = 'https://docs.google.com/document/d/1DRhi1jzjQFqg4WRxeSY38I2W-1PQccJptQ8bmg-kEN8/edit'
 engine_link = 'https://lmgtfy.com/?q='
+lat_rus_map = {ord(l): r for l, r in zip("f,dult`;pbqrkvyjghcnea[wxio]sm'.z",
+                                         "абвгдеёжзийклмнопрстуфхцчшщъыьэюя")}
 
 with open('quotes.json', 'rt', encoding='utf-8') as f:
     quotes = json.loads(''.join(f.readlines()))
@@ -91,6 +93,14 @@ async def pychan_quote_add(message: types.Message):
         qdb.add(new_quote)
         logging.log(logging.INFO, f'Add quote "{new_quote}"')
         await message.reply(f'добавил: {new_quote["text"]}', reply=False)
+
+
+@dp.message_handler(lambda msg: msg.text.startswith('!tr') and msg.chat.id == PY_CHAT_ID)
+@rate_limit(10)
+async def translate_handler(message: types.Message):
+    ungarbled = message.reply_to_message.text.translate(lat_rus_map)
+    if ungarbled:
+        await bot.send_message(message.chat.id, ungarbled, reply_to_message_id=message.message_id)
 
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!lmgtfy'))
