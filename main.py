@@ -195,7 +195,8 @@ async def default_handler(message: types.Message):
     num = random.randint(1, 100)
     print('>', num, message)
     if message.chat.id == PY_CHAT_ID:
-        if 'хауди' in message.text.lower() or 'дудар' in message.text.lower():
+        lowered = message.text.lower()
+        if 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered:
             await message.reply('у нас тут таких не любят')
     if num < 3:
         await quote_handler(message)
