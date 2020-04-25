@@ -27,8 +27,8 @@ SELF_USER = creds['self_user']
 
 rules_link = 'https://docs.google.com/document/d/1DRhi1jzjQFqg4WRxeSY38I2W-1PQccJptQ8bmg-kEN8/edit'
 engine_link = 'https://lmgtfy.com/?q='
-lat_rus_map = {ord(l): r for l, r in zip("f,dult`;pbqrkvyjghcnea[wxio]sm'.z",
-                                         "абвгдеёжзийклмнопрстуфхцчшщъыьэюя")}
+lat_rus_map = {ord(l): r for l, r in zip("f,dult`;pbqrkvyjghcnea[wxio]sm'.z&",
+                                         "абвгдеёжзийклмнопрстуфхцчшщъыьэюя?")}
 
 with open('quotes.json', 'rt', encoding='utf-8') as f:
     quotes = json.loads(''.join(f.readlines()))
