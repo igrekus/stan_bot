@@ -147,7 +147,7 @@ async def rules_handler(message: types.Message):
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ['!nometa'])
 @rate_limit(5)
-async def rules_handler(message: types.Message):
+async def nometa_handler(message: types.Message):
     reply = message['reply_to_message']
     if reply:
         id_ = message.reply_to_message.message_id
