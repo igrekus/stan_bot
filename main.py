@@ -1,6 +1,7 @@
 import json
 import logging
 import random
+import sys
 
 import requests
 from aiogram import Bot, Dispatcher, executor, types
@@ -32,7 +33,7 @@ lat_rus_map = {ord(l): r for l, r in zip("f,dult`;pbqrkvyjghcnea[wxio]sm'.z&",
 qdb = QuoteDB()
 
 storage = MemoryStorage()
-bot = Bot(token=token, proxy=proxy)
+bot = Bot(token=token) if sys.argv[1] == '--noproxy' else Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot, storage=storage)
 
 bot_admins = [SELF_USER]
