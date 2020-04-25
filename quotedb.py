@@ -13,4 +13,5 @@ class QuoteDB:
 
     @property
     def quote(self):
-        return self.quotes.find_one(id={'>=': random.randint(1, self.max)}).values()
+        self.max += 1
+        return self.quotes.find_one(id={'>=': random.randint(1, self.max - 1)}).values()
