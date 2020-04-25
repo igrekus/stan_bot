@@ -20,7 +20,7 @@ px_pass = creds['pass']
 px_server = creds['proxy']
 px_port = creds['port']
 token = creds['token']
-proxy = f'socks5://{px_user}:{px_pass}@{px_server}:{px_port}'
+proxy = 'http://proxy.server:3128' if sys.argv[1] == '--pyaw' else f'socks5://{px_user}:{px_pass}@{px_server}:{px_port}'
 PY_CHAT_ID = creds['py_chat']
 TEST_CHAT_ID = creds['test_chat']
 SELF_USER = creds['self_user']
@@ -33,7 +33,7 @@ lat_rus_map = {ord(l): r for l, r in zip("f,dult`;pbqrkvyjghcnea[wxio]sm'.z&",
 qdb = QuoteDB()
 
 storage = MemoryStorage()
-bot = Bot(token=token) if sys.argv[1] == '--noproxy' else Bot(token=token, proxy=proxy)
+bot = Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot, storage=storage)
 
 bot_admins = [SELF_USER]
