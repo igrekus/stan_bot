@@ -3,6 +3,7 @@ import json
 import logging
 import random
 
+import requests
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
@@ -60,21 +61,14 @@ async def handle_admin(message: types.Message):
     elif "!send" in message.text:
         _, chat, msg = message.text.split(' ', 2)
         await bot.send_message(int(chat), msg)
-    elif '!import' in message.text:
-        qs = 'a'
-        last_id = int(list(quotes.keys())[-1])
-        for q in qs.split('\n'):
-            id_, text = q.split('|')
-            new_quote = {
-                'message_id': int(id_.lstrip('message')),
-                'text': text
-            }
-            quotes[f'{last_id + 1}'] = new_quote
-            last_id += 1
-            logging.log(logging.INFO, f'Add quote "{new_quote}"')
-
-        with open('quotes.json', 'wt', encoding='utf-8') as f:
-            json.dump(quotes, f, ensure_ascii=False)
+    elif '!inspire' in message.text:
+        url = requests.get('https://inspirobot.me/api?generate=true').text
+        if not url:
+            return
+        img = requests.get(url).content
+        if not img:
+            return
+        await bot.send_photo(message.chat.id, img, reply_to_message_id=message.message_id)
     elif '!add' in message.text:
         await pychan_quote_add(message)
 
@@ -101,6 +95,18 @@ async def translate_handler(message: types.Message):
     ungarbled = message.reply_to_message.text.translate(lat_rus_map)
     if ungarbled:
         await bot.send_message(message.chat.id, ungarbled, reply_to_message_id=message.message_id)
+
+
+@dp.message_handler(lambda msg: msg.text.startswith('!inspire') and msg.chat.id == PY_CHAT_ID and msg['from'].id == SELF_USER)
+@rate_limit(10)
+async def inspire_handler(message: types.Message):
+    url = requests.get('https://inspirobot.me/api?generate=true').text
+    if not url:
+        return
+    img = requests.get(url).content
+    if not img:
+        return
+    await bot.send_photo(message.chat.id, img, reply_to_message_id=message.message_id)
 
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!lmgtfy'))
