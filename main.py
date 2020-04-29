@@ -1,6 +1,7 @@
 import json
 import logging
 import random
+import sys
 
 import requests
 from aiogram import Bot, Dispatcher, executor, types
@@ -19,7 +20,7 @@ px_pass = creds['pass']
 px_server = creds['proxy']
 px_port = creds['port']
 token = creds['token']
-proxy = f'socks5://{px_user}:{px_pass}@{px_server}:{px_port}'
+proxy = 'http://proxy.server:3128' if sys.argv[1] == '--pyaw' else f'socks5://{px_user}:{px_pass}@{px_server}:{px_port}'
 PY_CHAT_ID = creds['py_chat']
 TEST_CHAT_ID = creds['test_chat']
 SELF_USER = creds['self_user']
