@@ -86,6 +86,16 @@ async def pychan_quote_add(message: types.Message):
         await message.reply(f'добавил: {new_quote["text"]}', reply=False)
 
 
+@dp.message_handler(lambda msg: msg.text.startswith('!advice') and msg.chat.id == PY_CHAT_ID and msg["from"].id == SELF_USER)
+@rate_limit(10)
+async def pychan_advice(message: types.Message):
+    reply = message['reply_to_message']
+    if reply:
+        first, second = message.text.lstrip('!advice ').split(', ')
+        if first and second:
+            await bot.send_message(message.chat.id, f'добавил: {first, second["text"]}', reply_to_message_id=reply.message_id)
+
+
 @dp.message_handler(lambda msg: msg.text.startswith('!tr') and msg.chat.id == PY_CHAT_ID)
 @rate_limit(10)
 async def translate_handler(message: types.Message):
