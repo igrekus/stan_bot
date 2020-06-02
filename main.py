@@ -21,6 +21,8 @@ px_server = creds['proxy']
 px_port = creds['port']
 token = creds['token']
 proxy = 'http://proxy.server:3128' if sys.argv[1] == '--pyaw' else f'socks5://{px_user}:{px_pass}@{px_server}:{px_port}'
+proxy = creds['proxy_url']
+
 PY_CHAT_ID = creds['py_chat']
 TEST_CHAT_ID = creds['test_chat']
 SELF_USER = creds['self_user']
