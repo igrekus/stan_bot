@@ -7,7 +7,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from middleware import rate_limit, ThrottlingMiddleware
 
-from .config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, TEST_CHAT_ID, SELF_USER, bot_admins
+from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, TEST_CHAT_ID, SELF_USER, bot_admins
 
 logging.basicConfig(level=logging.INFO)
 
