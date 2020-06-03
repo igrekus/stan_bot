@@ -8,6 +8,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from middleware import rate_limit, ThrottlingMiddleware
 
 from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, TEST_CHAT_ID, SELF_USER, bot_admins
+from filters import *
 
 logging.basicConfig(level=logging.INFO)
 
@@ -15,19 +16,18 @@ bot = Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 
-@dp.message_handler(commands=['start', 'help'])
+@dp.message_handler(lambda msg: is_private_command(msg, '/start'))
 @rate_limit(5, 'start')
-async def send_welcome(message: types.Message):
-    if message.chat.id not in [TEST_CHAT_ID, SELF_USER]:
-        return
-    if message.text == '/start':
+async def on_register(message: types.Message):
+    if message.chat.id == message.from_user.id:
+        logging.info(f'Registering user {message.from_user}')
+        auth.register_user(message)
         await bot.send_message(message.chat.id, 'start command issued')
-    elif message.text == '/help':
-        await bot.send_message(message.chat.id, 'help command issued')
 
 
-@dp.message_handler(lambda msg: msg.chat.id in bot_admins)
+@dp.message_handler(lambda msg: is_private_admin_message(msg, admins=bot_admins))
 async def handle_admin(message: types.Message):
+    print('admin query: ', message)
     if '/send py' in message.text:
         s = message.text.lstrip('/send py')
         await bot.send_message(PY_CHAT_ID, s)
