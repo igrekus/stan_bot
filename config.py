@@ -1,5 +1,6 @@
 import json
 
+from botauth import BotAuth
 from quotedb import QuoteDB
 
 with open('creds.json', 'rt', encoding='utf-8') as f:
@@ -21,3 +22,4 @@ SELF_USER = creds['self_user']
 bot_admins = [SELF_USER]
 
 qdb = QuoteDB()
+bot_auth = BotAuth()

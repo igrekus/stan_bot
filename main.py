@@ -7,7 +7,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, TEST_CHAT_ID, SELF_USER, bot_admins
+from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth
 from filters import *
 
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +21,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 async def on_register(message: types.Message):
     if message.chat.id == message.from_user.id:
         logging.info(f'Registering user {message.from_user}')
-        auth.register_user(message)
+        bot_auth.register_user(message)
         await bot.send_message(message.chat.id, 'start command issued')
 
 
