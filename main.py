@@ -17,7 +17,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 @dp.message_handler(lambda msg: is_private_command(msg, '/start'))
 @rate_limit(5, 'start')
-async def on_register(message: types.Message):
+async def on_register_request(message: types.Message):
     if message.chat.id == message.from_user.id:
         logging.info(f'Registering user {message.from_user}')
         bot_auth.register_user(message)
@@ -25,7 +25,7 @@ async def on_register(message: types.Message):
 
 
 @dp.message_handler(lambda msg: is_private_admin_message(msg, admins=bot_admins))
-async def handle_admin(message: types.Message):
+async def on_admin_private_message(message: types.Message):
     logging.info(f'admin query: {message["from"]} - {message.text}')
     if is_private_command(message, '/send'):
         chat, text = message.get_args().split(sep=' ', maxsplit=1)
@@ -49,7 +49,7 @@ async def handle_admin(message: types.Message):
     is_bang_command(msg, 'add') and
     is_user_admin(msg, bot_admins))
 @rate_limit(10)
-async def handled_chan_quote_add(message: types.Message):
+async def on_band_add(message: types.Message):
     logging.log(logging.INFO, f'!add received from {message.from_user} with text "{message.text}"')
     reply = message['reply_to_message']
     if reply:
