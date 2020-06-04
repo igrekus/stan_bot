@@ -16,11 +16,11 @@ lat_rus_map = {ord(l): r for l, r in zip("f,dult`;pbqrkvyjghcnea[wxio]sm'.z&?/",
                                          "абвгдеёжзийклмнопрстуфхцчшщъыьэюя?,.")}
 
 PY_CHAT_ID = creds['py_chat']
-TEST_CHAT_ID = creds['test_chat']
+TEST_CHAT_ID = -1001204542632
 SELF_USER = creds['self_user']
 
 bot_admins = [SELF_USER]
-handled_chats = [PY_CHAT_ID]
+handled_chats = [PY_CHAT_ID, TEST_CHAT_ID]
 
 chat_alias = {
     'py': PY_CHAT_ID

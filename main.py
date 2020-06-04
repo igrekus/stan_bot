@@ -74,12 +74,16 @@ async def pychan_advice(message: types.Message):
             await bot.send_message(message.chat.id, f'добавил: {first, second["text"]}', reply_to_message_id=reply.message_id)
 
 
-@dp.message_handler(lambda msg: msg.text.startswith('!tr') and msg.chat.id == PY_CHAT_ID)
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'tr')
+)
 @rate_limit(10)
-async def translate_handler(message: types.Message):
-    ungarbled = message.reply_to_message.text.translate(lat_rus_map)
-    if ungarbled:
-        await bot.send_message(message.chat.id, ungarbled, reply_to_message_id=message.message_id)
+async def on_tr(message: types.Message):
+    if not message.reply_to_message.text:
+        return
+    await message.reply(message.reply_to_message.text.translate(lat_rus_map))
 
 
 @dp.message_handler(lambda msg: msg.text.startswith('!inspire') and msg.chat.id == PY_CHAT_ID and msg['from'].id == SELF_USER)
