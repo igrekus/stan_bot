@@ -27,11 +27,11 @@ async def on_register_request(message: types.Message):
 @dp.message_handler(lambda msg: is_private_admin_message(msg, admins=bot_admins))
 async def on_admin_private_message(message: types.Message):
     logging.info(f'admin query: {message["from"]} - {message.text}')
-    if is_private_command(message, '/send'):
+    if is_command(message, 'send'):
         chat, text = message.get_args().split(sep=' ', maxsplit=1)
         chat = chat_alias.get(chat, chat)
         await bot.send_message(int(chat), text)
-    elif '!inspire' in message.text:
+    elif is_bang_command(message, 'inspire'):
         url = requests.get('https://inspirobot.me/api?generate=true').text
         if not url:
             return
@@ -39,15 +39,16 @@ async def on_admin_private_message(message: types.Message):
         if not img:
             return
         await bot.send_photo(message.chat.id, img, reply_to_message_id=message.message_id)
-    elif '!add' in message.text:
-        await handled_chan_quote_add(message)
+    elif is_bang_command(message, 'add'):
+        await on_band_add(message)
 
 
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
     is_bang_command(msg, 'add') and
-    is_user_admin(msg, bot_admins))
+    is_user_admin(msg, bot_admins)
+)
 @rate_limit(10)
 async def on_band_add(message: types.Message):
     logging.log(logging.INFO, f'!add received from {message.from_user} with text "{message.text}"')
