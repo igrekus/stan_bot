@@ -86,16 +86,21 @@ async def on_tr(message: types.Message):
     await message.reply(message.reply_to_message.text.translate(lat_rus_map))
 
 
-@dp.message_handler(lambda msg: msg.text.startswith('!inspire') and msg.chat.id == PY_CHAT_ID and msg['from'].id == SELF_USER)
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'inspire') and
+    is_user_admin(msg, bot_admins)
+)
 @rate_limit(10)
-async def inspire_handler(message: types.Message):
+async def on_inspire(message: types.Message):
     url = requests.get('https://inspirobot.me/api?generate=true').text
     if not url:
         return
     img = requests.get(url).content
     if not img:
         return
-    await bot.send_photo(message.chat.id, img, reply_to_message_id=message.message_id)
+    await message.reply_photo(img, reply=False)
 
 
 @dp.message_handler(
