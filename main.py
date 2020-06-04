@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth
+from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth, chat_alias
 from filters import *
 
 logging.basicConfig(level=logging.INFO)
@@ -26,13 +26,11 @@ async def on_register(message: types.Message):
 
 @dp.message_handler(lambda msg: is_private_admin_message(msg, admins=bot_admins))
 async def handle_admin(message: types.Message):
-    print('admin query: ', message)
-    if '/send py' in message.text:
-        s = message.text.lstrip('/send py')
-        await bot.send_message(PY_CHAT_ID, s)
-    elif "!send" in message.text:
-        _, chat, msg = message.text.split(' ', 2)
-        await bot.send_message(int(chat), msg)
+    logging.info(f'admin query: {message["from"]} - {message.text}')
+    if is_private_command(message, '/send'):
+        chat, text = message.get_args().split(sep=' ', maxsplit=1)
+        chat = chat_alias.get(chat, chat)
+        await bot.send_message(int(chat), text)
     elif '!inspire' in message.text:
         url = requests.get('https://inspirobot.me/api?generate=true').text
         if not url:

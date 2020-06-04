@@ -21,5 +21,9 @@ SELF_USER = creds['self_user']
 
 bot_admins = [SELF_USER]
 
+chat_alias = {
+    'py': PY_CHAT_ID
+}
+
 qdb = QuoteDB()
 bot_auth = BotAuth()
