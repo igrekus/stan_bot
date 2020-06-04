@@ -208,7 +208,7 @@ async def ob_bang_lutz(message: types.Message):
 )
 @rate_limit(5)
 async def on_bang_django(message: types.Message):
-    await message.reply(f'держи, поискал за тебя: https://t.me/c/1338616632/133706', reply=False)
+    await message.reply(f'{_get_user_link(message)} держи, поискал за тебя: https://t.me/c/1338616632/133706', reply=False)
 
 
 @dp.message_handler()
