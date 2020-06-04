@@ -98,12 +98,20 @@ async def inspire_handler(message: types.Message):
     await bot.send_photo(message.chat.id, img, reply_to_message_id=message.message_id)
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!lmgtfy'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'lmgtfy')
+)
 @rate_limit(5)
-async def lmgtfy_handler(message: types.Message):
+async def on_lmgtfy(message: types.Message):
     reply = message['reply_to_message']
     if reply:
-        query = f'{engine_link}{"+".join(message.reply_to_message.text.split(" "))}'
+        args = message.text.lstrip("!lmgtfy ")
+        if not args:
+            query = f'{engine_link}{"+".join(message.reply_to_message.text.split(" "))}'
+        else:
+            query = f'{engine_link}{"+".join(message.text.lstrip("!lmgtfy ").split(" "))}'
         id_ = message.reply_to_message.message_id
     else:
         query = f'{engine_link}{"+".join(message.text.lstrip("!lmgtfy ").split(" "))}'
