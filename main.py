@@ -17,7 +17,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 @dp.message_handler(lambda msg: is_private_command(msg, '/start'))
 @rate_limit(5, 'start')
-async def on_register_request(message: types.Message):
+async def on_private_start(message: types.Message):
     if message.chat.id == message.from_user.id:
         logging.info(f'Registering user {message.from_user}')
         bot_auth.register_user(message)
@@ -66,7 +66,7 @@ async def on_bang_add(message: types.Message):
 
 @dp.message_handler(lambda msg: msg.text.startswith('!advice') and msg.chat.id == PY_CHAT_ID and msg["from"].id == SELF_USER)
 @rate_limit(10)
-async def pychan_advice(message: types.Message):
+async def on_bang_advice(message: types.Message):
     reply = message['reply_to_message']
     if reply:
         first, second = message.text.lstrip('!advice ').split(', ')
@@ -80,7 +80,7 @@ async def pychan_advice(message: types.Message):
     is_bang_command(msg, 'tr')
 )
 @rate_limit(10)
-async def on_tr(message: types.Message):
+async def on_bang_tr(message: types.Message):
     if not message.reply_to_message.text:
         return
     await message.reply(message.reply_to_message.text.translate(lat_rus_map))
@@ -93,7 +93,7 @@ async def on_tr(message: types.Message):
     is_user_admin(msg, bot_admins)
 )
 @rate_limit(10)
-async def on_inspire(message: types.Message):
+async def on_bang_inspire(message: types.Message):
     url = requests.get('https://inspirobot.me/api?generate=true').text
     if not url:
         return
@@ -109,7 +109,7 @@ async def on_inspire(message: types.Message):
     is_bang_command(msg, 'lmgtfy')
 )
 @rate_limit(5)
-async def on_lmgtfy(message: types.Message):
+async def on_bang_lmgtfy(message: types.Message):
     reply = message['reply_to_message']
     if reply:
         args = message.text.lstrip("!lmgtfy ")
@@ -126,7 +126,7 @@ async def on_lmgtfy(message: types.Message):
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!quote'))
 @rate_limit(5)
-async def quote_handler(message: types.Message):
+async def on_bang_quote(message: types.Message):
     # TODO rewrite !quote query for new db
     # query = ''
     # try:
@@ -143,7 +143,7 @@ async def quote_handler(message: types.Message):
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ('!rules', '!правила'))
 @rate_limit(5)
-async def rules_handler(message: types.Message):
+async def on_bang_rules(message: types.Message):
     reply = message['reply_to_message']
     if reply:
         id_ = message.reply_to_message.message_id
@@ -155,7 +155,7 @@ async def rules_handler(message: types.Message):
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ['!nometa'])
 @rate_limit(5)
-async def nometa_handler(message: types.Message):
+async def on_bang_nometa(message: types.Message):
     reply = message['reply_to_message']
     if reply:
         id_ = message.reply_to_message.message_id
@@ -174,7 +174,7 @@ def get_user_link(message: types.Message):
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!help'))
 @rate_limit(5)
-async def help_handler(message: types.Message):
+async def on_bang_help(message: types.Message):
     await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
 `\\!lutz`, `\\!лутц` \\- дать Лутцца
 `\\!django`, `\\!джанго` \\- дать Джангца
@@ -184,7 +184,7 @@ async def help_handler(message: types.Message):
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!lutz', '!лутц'))
 @rate_limit(5)
-async def lutz_handler(message: types.Message):
+async def ob_bang_lutz(message: types.Message):
     reply = message['reply_to_message']
     msg = message
     if reply:
@@ -194,7 +194,7 @@ async def lutz_handler(message: types.Message):
 
 @dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!django', '!джанго'))
 @rate_limit(5)
-async def django_handler(message: types.Message):
+async def on_bang_django(message: types.Message):
     await message.reply(f'держи, поискал за тебя: https://t.me/c/1338616632/133706', reply=False)
 
 
@@ -207,11 +207,10 @@ async def default_handler(message: types.Message):
         if 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered:
             await message.reply('у нас тут таких не любят')
     if num < 2:
-        await quote_handler(message)
+        await on_bang_quote(message)
 
 
 def main():
-    print('main')
     dp.middleware.setup(ThrottlingMiddleware())
     executor.start_polling(dp, skip_updates=True)
 
