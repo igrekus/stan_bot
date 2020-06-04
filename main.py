@@ -124,15 +124,14 @@ async def on_bang_lmgtfy(message: types.Message):
     await bot.send_message(message.chat.id, query, disable_web_page_preview=True, reply_to_message_id=id_)
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!quote'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'quote')
+)
 @rate_limit(5)
 async def on_bang_quote(message: types.Message):
-    # TODO rewrite !quote query for new db
-    # query = ''
-    # try:
-    #     _, query = message.text.split(' ', 1)
-    # except ValueError:
-    #     pass
+    # TODO send only quotes belonging to the source channel
     id_, msg_id, text = qdb.quote
     logging.info(f'Send quote id={id_} text={text}')
     if msg_id:
