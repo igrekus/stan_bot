@@ -20,6 +20,7 @@ TEST_CHAT_ID = creds['test_chat']
 SELF_USER = creds['self_user']
 
 bot_admins = [SELF_USER]
+handled_chats = [PY_CHAT_ID]
 
 chat_alias = {
     'py': PY_CHAT_ID

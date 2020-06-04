@@ -6,6 +6,8 @@ __all__ = [
     'is_command',
     'is_private_command',
     'is_private_admin_message',
+    'is_bang_command',
+    'is_handled_chat',
 ]
 
 
@@ -14,10 +16,10 @@ def is_private_message(message: types.Message):
 
 
 def is_user_admin(message: types.Message, admins: list):
-    return message.chat.id in admins
+    return message['from'].id in admins
 
 
-def is_command(message: types.Message, command):
+def is_command(message: types.Message, command: str):
     return message.is_command() and message.get_command().startswith(f'{command}')
 
 
@@ -25,5 +27,15 @@ def is_private_command(message: types.Message, command: str):
     return is_private_message(message) and is_command(message, command)
 
 
-def is_private_admin_message(message: types.Message, admins):
+def is_private_admin_message(message: types.Message, admins: list):
     return is_user_admin(message, admins) and is_private_message(message)
+
+
+def is_bang_command(message: types.Message, command: str):
+    return message.text.startswith(f'!{command}')
+
+
+def is_handled_chat(message: types.Message, handled_chats: list):
+    return message.chat.id in handled_chats
+
+

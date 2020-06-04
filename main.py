@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth, chat_alias
+from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth, chat_alias, handled_chats
 from filters import *
 
 logging.basicConfig(level=logging.INFO)
@@ -40,12 +40,16 @@ async def handle_admin(message: types.Message):
             return
         await bot.send_photo(message.chat.id, img, reply_to_message_id=message.message_id)
     elif '!add' in message.text:
-        await pychan_quote_add(message)
+        await handled_chan_quote_add(message)
 
 
-@dp.message_handler(lambda msg: msg.text.startswith('!add') and msg.chat.id == PY_CHAT_ID and msg["from"].id == SELF_USER)
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'add') and
+    is_user_admin(msg, bot_admins))
 @rate_limit(10)
-async def pychan_quote_add(message: types.Message):
+async def handled_chan_quote_add(message: types.Message):
     logging.log(logging.INFO, f'!add received from {message.from_user} with text "{message.text}"')
     reply = message['reply_to_message']
     if reply:
