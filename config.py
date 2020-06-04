@@ -12,8 +12,8 @@ proxy = creds['proxy_url']
 rules_link = 'https://docs.google.com/document/d/1DRhi1jzjQFqg4WRxeSY38I2W-1PQccJptQ8bmg-kEN8/edit'
 engine_link = 'https://lmgtfy.com/?q='
 
-lat_rus_map = {ord(l): r for l, r in zip("f,dult`;pbqrkvyjghcnea[wxio]sm'.z&",
-                                         "абвгдеёжзийклмнопрстуфхцчшщъыьэюя?")}
+lat_rus_map = {ord(l): r for l, r in zip("f,dult`;pbqrkvyjghcnea[wxio]sm'.z&?/",
+                                         "абвгдеёжзийклмнопрстуфхцчшщъыьэюя?,.")}
 
 PY_CHAT_ID = creds['py_chat']
 TEST_CHAT_ID = creds['test_chat']
