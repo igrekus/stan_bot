@@ -1,10 +1,9 @@
-import json
 import logging
 import random
 import requests
+
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-
 from middleware import rate_limit, ThrottlingMiddleware
 
 from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth
