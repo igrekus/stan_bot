@@ -26,7 +26,7 @@ async def on_register_request(message: types.Message):
 
 @dp.message_handler(lambda msg: is_private_admin_message(msg, admins=bot_admins))
 async def on_admin_private_message(message: types.Message):
-    logging.info(f'admin query: {message["from"]} - {message.text}')
+    logging.info(f'private admin query: {message["from"]} - {message.text}')
     if is_command(message, 'send'):
         chat, text = message.get_args().split(sep=' ', maxsplit=1)
         chat = chat_alias.get(chat, chat)
@@ -51,7 +51,7 @@ async def on_admin_private_message(message: types.Message):
 )
 @rate_limit(10)
 async def on_band_add(message: types.Message):
-    logging.log(logging.INFO, f'!add received from {message.from_user} with text "{message.text}"')
+    logging.log(logging.INFO, f'!add from: {message["from"]} - "{message.text}"')
     reply = message['reply_to_message']
     if reply:
         new_quote = {'message_id': reply.message_id, 'text': reply.text}
