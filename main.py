@@ -40,7 +40,7 @@ async def on_admin_private_message(message: types.Message):
             return
         await bot.send_photo(message.chat.id, img, reply_to_message_id=message.message_id)
     elif is_bang_command(message, 'add'):
-        await on_band_add(message)
+        await on_bang_add(message)
 
 
 @dp.message_handler(
@@ -50,7 +50,7 @@ async def on_admin_private_message(message: types.Message):
     is_user_admin(msg, bot_admins)
 )
 @rate_limit(10)
-async def on_band_add(message: types.Message):
+async def on_bang_add(message: types.Message):
     logging.log(logging.INFO, f'!add from: {message["from"]} - "{message.text}"')
     reply = message['reply_to_message']
     if reply:
