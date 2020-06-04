@@ -140,7 +140,11 @@ async def on_bang_quote(message: types.Message):
         await message.reply(text, reply=False)
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ('!rules', '!правила'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    (is_bang_command(msg, 'rules') or is_bang_command(msg, 'правила'))
+)
 @rate_limit(5)
 async def on_bang_rules(message: types.Message):
     reply = message['reply_to_message']
@@ -148,11 +152,15 @@ async def on_bang_rules(message: types.Message):
         id_ = message.reply_to_message.message_id
     else:
         id_ = message.message_id
-    await bot.send_message(PY_CHAT_ID, f'[сюда]({rules_link}) читай',
+    await bot.send_message(message.chat.id, f'[сюда]({rules_link}) читай',
                            parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ['!nometa'])
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'nometa')
+)
 @rate_limit(5)
 async def on_bang_nometa(message: types.Message):
     reply = message['reply_to_message']
@@ -160,18 +168,15 @@ async def on_bang_nometa(message: types.Message):
         id_ = message.reply_to_message.message_id
     else:
         id_ = message.message_id
-    await bot.send_message(PY_CHAT_ID, f'[nometa\\.xyz](http://nometa.xyz)',
+    await bot.send_message(message.chat.id, f'[nometa\\.xyz](http://nometa.xyz)',
                            parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
 
 
-def get_user_link(message: types.Message):
-    name = f'@{message.from_user.username}'
-    if name == '@None':
-        name = f'{message.from_user.first_name}'
-    return name
-
-
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!help'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    (is_bang_command(msg, 'help') or is_bang_command(msg, 'помощь') or is_bang_command(msg, 'хелп'))
+)
 @rate_limit(5)
 async def on_bang_help(message: types.Message):
     await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
@@ -181,17 +186,26 @@ async def on_bang_help(message: types.Message):
 ''', parse_mode='MarkdownV2', reply=False)
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!lutz', '!лутц'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    (is_bang_command(msg, 'lutz') or is_bang_command(msg, 'лутц'))
+)
 @rate_limit(5)
 async def ob_bang_lutz(message: types.Message):
     reply = message['reply_to_message']
     msg = message
     if reply:
         msg = message.reply_to_message
-    await bot.send_message(message.chat.id, f'{get_user_link(msg)} вот, не позорься: https://t.me/python_books_archive/565')
+    await bot.send_message(message.chat.id,
+                           f'{_get_user_link(msg)} вот, не позорься: https://t.me/python_books_archive/565')
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!django', '!джанго'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    (is_bang_command(msg, 'django') or is_bang_command(msg, 'джанго'))
+)
 @rate_limit(5)
 async def on_bang_django(message: types.Message):
     await message.reply(f'держи, поискал за тебя: https://t.me/c/1338616632/133706', reply=False)
@@ -207,6 +221,13 @@ async def default_handler(message: types.Message):
             await message.reply('у нас тут таких не любят')
     if num < 2:
         await on_bang_quote(message)
+
+
+def _get_user_link(message: types.Message):
+    name = f'@{message.from_user.username}'
+    if name == '@None':
+        name = f'{message.from_user.first_name}'
+    return name
 
 
 def main():
