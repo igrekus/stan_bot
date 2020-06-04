@@ -1,59 +1,32 @@
-import json
 import logging
 import random
-import sys
-
 import requests
+
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-
 from middleware import rate_limit, ThrottlingMiddleware
-from quotedb import QuoteDB
+
+from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth
+from filters import *
 
 logging.basicConfig(level=logging.INFO)
 
-with open('creds.json', 'rt', encoding='utf-8') as f:
-    creds = json.loads(''.join(f.readlines()))
-
-px_user = creds['user']
-px_pass = creds['pass']
-px_server = creds['proxy']
-px_port = creds['port']
-token = creds['token']
-proxy = 'http://proxy.server:3128' if sys.argv[1] == '--pyaw' else f'socks5://{px_user}:{px_pass}@{px_server}:{px_port}'
-proxy = creds['proxy_url']
-
-PY_CHAT_ID = creds['py_chat']
-TEST_CHAT_ID = creds['test_chat']
-SELF_USER = creds['self_user']
-
-rules_link = 'https://docs.google.com/document/d/1DRhi1jzjQFqg4WRxeSY38I2W-1PQccJptQ8bmg-kEN8/edit'
-engine_link = 'https://lmgtfy.com/?q='
-lat_rus_map = {ord(l): r for l, r in zip("f,dult`;pbqrkvyjghcnea[wxio]sm'.z&",
-                                         "абвгдеёжзийклмнопрстуфхцчшщъыьэюя?")}
-
-qdb = QuoteDB()
-
-storage = MemoryStorage()
 bot = Bot(token=token, proxy=proxy)
-dp = Dispatcher(bot, storage=storage)
-
-bot_admins = [SELF_USER]
+dp = Dispatcher(bot, storage=MemoryStorage())
 
 
-@dp.message_handler(commands=['start', 'help'])
+@dp.message_handler(lambda msg: is_private_command(msg, '/start'))
 @rate_limit(5, 'start')
-async def send_welcome(message: types.Message):
-    if message.chat.id != TEST_CHAT_ID and message.chat.id != SELF_USER:
-        return
-    if message.text == '/start':
+async def on_register(message: types.Message):
+    if message.chat.id == message.from_user.id:
+        logging.info(f'Registering user {message.from_user}')
+        bot_auth.register_user(message)
         await bot.send_message(message.chat.id, 'start command issued')
-    elif message.text == '/help':
-        await bot.send_message(message.chat.id, 'help command issued')
 
 
-@dp.message_handler(lambda msg: msg.chat.id in bot_admins)
+@dp.message_handler(lambda msg: is_private_admin_message(msg, admins=bot_admins))
 async def handle_admin(message: types.Message):
+    print('admin query: ', message)
     if '/send py' in message.text:
         s = message.text.lstrip('/send py')
         await bot.send_message(PY_CHAT_ID, s)
