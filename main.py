@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth
+from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth, chat_alias, handled_chats
 from filters import *
 
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +17,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 @dp.message_handler(lambda msg: is_private_command(msg, '/start'))
 @rate_limit(5, 'start')
-async def on_register(message: types.Message):
+async def on_private_start(message: types.Message):
     if message.chat.id == message.from_user.id:
         logging.info(f'Registering user {message.from_user}')
         bot_auth.register_user(message)
@@ -25,15 +25,13 @@ async def on_register(message: types.Message):
 
 
 @dp.message_handler(lambda msg: is_private_admin_message(msg, admins=bot_admins))
-async def handle_admin(message: types.Message):
-    print('admin query: ', message)
-    if '/send py' in message.text:
-        s = message.text.lstrip('/send py')
-        await bot.send_message(PY_CHAT_ID, s)
-    elif "!send" in message.text:
-        _, chat, msg = message.text.split(' ', 2)
-        await bot.send_message(int(chat), msg)
-    elif '!inspire' in message.text:
+async def on_admin_private_message(message: types.Message):
+    logging.info(f'private admin query: {message["from"]} - {message.text}')
+    if is_command(message, 'send'):
+        chat, text = message.get_args().split(sep=' ', maxsplit=1)
+        chat = chat_alias.get(chat, chat)
+        await bot.send_message(int(chat), text)
+    elif is_bang_command(message, 'inspire'):
         url = requests.get('https://inspirobot.me/api?generate=true').text
         if not url:
             return
@@ -41,14 +39,19 @@ async def handle_admin(message: types.Message):
         if not img:
             return
         await bot.send_photo(message.chat.id, img, reply_to_message_id=message.message_id)
-    elif '!add' in message.text:
-        await pychan_quote_add(message)
+    elif is_bang_command(message, 'add'):
+        await on_bang_add(message)
 
 
-@dp.message_handler(lambda msg: msg.text.startswith('!add') and msg.chat.id == PY_CHAT_ID and msg["from"].id == SELF_USER)
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'add') and
+    is_user_admin(msg, bot_admins)
+)
 @rate_limit(10)
-async def pychan_quote_add(message: types.Message):
-    logging.log(logging.INFO, f'!add received from {message.from_user} with text "{message.text}"')
+async def on_bang_add(message: types.Message):
+    logging.log(logging.INFO, f'!add from: {message["from"]} - "{message.text}"')
     reply = message['reply_to_message']
     if reply:
         new_quote = {'message_id': reply.message_id, 'text': reply.text}
@@ -63,7 +66,7 @@ async def pychan_quote_add(message: types.Message):
 
 @dp.message_handler(lambda msg: msg.text.startswith('!advice') and msg.chat.id == PY_CHAT_ID and msg["from"].id == SELF_USER)
 @rate_limit(10)
-async def pychan_advice(message: types.Message):
+async def on_bang_advice(message: types.Message):
     reply = message['reply_to_message']
     if reply:
         first, second = message.text.lstrip('!advice ').split(', ')
@@ -71,32 +74,49 @@ async def pychan_advice(message: types.Message):
             await bot.send_message(message.chat.id, f'добавил: {first, second["text"]}', reply_to_message_id=reply.message_id)
 
 
-@dp.message_handler(lambda msg: msg.text.startswith('!tr') and msg.chat.id == PY_CHAT_ID)
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'tr')
+)
 @rate_limit(10)
-async def translate_handler(message: types.Message):
-    ungarbled = message.reply_to_message.text.translate(lat_rus_map)
-    if ungarbled:
-        await bot.send_message(message.chat.id, ungarbled, reply_to_message_id=message.message_id)
+async def on_bang_tr(message: types.Message):
+    if not message.reply_to_message.text:
+        return
+    await message.reply(message.reply_to_message.text.translate(lat_rus_map))
 
 
-@dp.message_handler(lambda msg: msg.text.startswith('!inspire') and msg.chat.id == PY_CHAT_ID and msg['from'].id == SELF_USER)
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'inspire') and
+    is_user_admin(msg, bot_admins)
+)
 @rate_limit(10)
-async def inspire_handler(message: types.Message):
+async def on_bang_inspire(message: types.Message):
     url = requests.get('https://inspirobot.me/api?generate=true').text
     if not url:
         return
     img = requests.get(url).content
     if not img:
         return
-    await bot.send_photo(message.chat.id, img, reply_to_message_id=message.message_id)
+    await message.reply_photo(img, reply=False)
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!lmgtfy'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'lmgtfy')
+)
 @rate_limit(5)
-async def lmgtfy_handler(message: types.Message):
+async def on_bang_lmgtfy(message: types.Message):
     reply = message['reply_to_message']
     if reply:
-        query = f'{engine_link}{"+".join(message.reply_to_message.text.split(" "))}'
+        args = message.text.lstrip("!lmgtfy ")
+        if not args:
+            query = f'{engine_link}{"+".join(message.reply_to_message.text.split(" "))}'
+        else:
+            query = f'{engine_link}{"+".join(message.text.lstrip("!lmgtfy ").split(" "))}'
         id_ = message.reply_to_message.message_id
     else:
         query = f'{engine_link}{"+".join(message.text.lstrip("!lmgtfy ").split(" "))}'
@@ -104,15 +124,14 @@ async def lmgtfy_handler(message: types.Message):
     await bot.send_message(message.chat.id, query, disable_web_page_preview=True, reply_to_message_id=id_)
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!quote'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'quote')
+)
 @rate_limit(5)
-async def quote_handler(message: types.Message):
-    # TODO rewrite !quote query for new db
-    # query = ''
-    # try:
-    #     _, query = message.text.split(' ', 1)
-    # except ValueError:
-    #     pass
+async def on_bang_quote(message: types.Message):
+    # TODO send only quotes belonging to the source channel
     id_, msg_id, text = qdb.quote
     logging.info(f'Send quote id={id_} text={text}')
     if msg_id:
@@ -121,40 +140,45 @@ async def quote_handler(message: types.Message):
         await message.reply(text, reply=False)
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ('!rules', '!правила'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    (is_bang_command(msg, 'rules') or is_bang_command(msg, 'правила'))
+)
 @rate_limit(5)
-async def rules_handler(message: types.Message):
+async def on_bang_rules(message: types.Message):
     reply = message['reply_to_message']
     if reply:
         id_ = message.reply_to_message.message_id
     else:
         id_ = message.message_id
-    await bot.send_message(PY_CHAT_ID, f'[сюда]({rules_link}) читай',
+    await bot.send_message(message.chat.id, f'[сюда]({rules_link}) читай',
                            parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text in ['!nometa'])
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'nometa')
+)
 @rate_limit(5)
-async def nometa_handler(message: types.Message):
+async def on_bang_nometa(message: types.Message):
     reply = message['reply_to_message']
     if reply:
         id_ = message.reply_to_message.message_id
     else:
         id_ = message.message_id
-    await bot.send_message(PY_CHAT_ID, f'[nometa\\.xyz](http://nometa.xyz)',
+    await bot.send_message(message.chat.id, f'[nometa\\.xyz](http://nometa.xyz)',
                            parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
 
 
-def get_user_link(message: types.Message):
-    name = f'@{message.from_user.username}'
-    if name == '@None':
-        name = f'{message.from_user.first_name}'
-    return name
-
-
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.startswith('!help'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    (is_bang_command(msg, 'help') or is_bang_command(msg, 'помощь') or is_bang_command(msg, 'хелп'))
+)
 @rate_limit(5)
-async def help_handler(message: types.Message):
+async def on_bang_help(message: types.Message):
     await message.reply('''`\\!rules`, `\\!правила` \\- правила чятика
 `\\!lutz`, `\\!лутц` \\- дать Лутцца
 `\\!django`, `\\!джанго` \\- дать Джангца
@@ -162,20 +186,29 @@ async def help_handler(message: types.Message):
 ''', parse_mode='MarkdownV2', reply=False)
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!lutz', '!лутц'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    (is_bang_command(msg, 'lutz') or is_bang_command(msg, 'лутц'))
+)
 @rate_limit(5)
-async def lutz_handler(message: types.Message):
+async def ob_bang_lutz(message: types.Message):
     reply = message['reply_to_message']
     msg = message
     if reply:
         msg = message.reply_to_message
-    await bot.send_message(message.chat.id, f'{get_user_link(msg)} вот, не позорься: https://t.me/python_books_archive/565')
+    await bot.send_message(message.chat.id,
+                           f'{_get_user_link(msg)} вот, не позорься: https://t.me/python_books_archive/565')
 
 
-@dp.message_handler(lambda msg: msg.chat.id == PY_CHAT_ID and msg.text.lower() in ('!django', '!джанго'))
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    (is_bang_command(msg, 'django') or is_bang_command(msg, 'джанго'))
+)
 @rate_limit(5)
-async def django_handler(message: types.Message):
-    await message.reply(f'держи, поискал за тебя: https://t.me/c/1338616632/133706', reply=False)
+async def on_bang_django(message: types.Message):
+    await message.reply(f'{_get_user_link(message)} держи, поискал за тебя: https://t.me/c/1338616632/133706', reply=False)
 
 
 @dp.message_handler()
@@ -187,11 +220,17 @@ async def default_handler(message: types.Message):
         if 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered:
             await message.reply('у нас тут таких не любят')
     if num < 2:
-        await quote_handler(message)
+        await on_bang_quote(message)
+
+
+def _get_user_link(message: types.Message):
+    name = f'@{message.from_user.username}'
+    if name == '@None':
+        name = f'{message.from_user.first_name}'
+    return name
 
 
 def main():
-    print('main')
     dp.middleware.setup(ThrottlingMiddleware())
     executor.start_polling(dp, skip_updates=True)
 
