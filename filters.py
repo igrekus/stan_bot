@@ -20,7 +20,7 @@ def is_user_admin(message: types.Message, admins: list):
 
 
 def is_command(message: types.Message, command: str):
-    return message.is_command() and message.get_command().startswith(f'{command}')
+    return message.is_command() and message.get_command().startswith(f'/{command}')
 
 
 def is_private_command(message: types.Message, command: str):

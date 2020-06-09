@@ -6,8 +6,9 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth, chat_alias, handled_chats
+from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, bot_admins, bot_auth, chat_alias, handled_chats
 from filters import *
+from helpers import *
 
 logging.basicConfig(level=logging.INFO)
 
@@ -15,13 +16,15 @@ bot = Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 
-@dp.message_handler(lambda msg: is_private_command(msg, '/start'))
-@rate_limit(5, 'start')
+# TODO move logging to a middleware class
+
+
+@dp.message_handler(lambda msg: is_private_command(msg, 'register'))
+@rate_limit(5, 'register')
 async def on_private_start(message: types.Message):
-    if message.chat.id == message.from_user.id:
-        logging.info(f'Registering user {message.from_user}')
-        bot_auth.register_user(message)
-        await bot.send_message(message.chat.id, 'start command issued')
+    logging.info(f'Registering user {message.from_user}')
+    bot_auth.register_user(message)
+    await bot.send_message(message.chat.id, 'start command issued')
 
 
 @dp.message_handler(lambda msg: is_private_admin_message(msg, admins=bot_admins))
@@ -52,16 +55,15 @@ async def on_admin_private_message(message: types.Message):
 @rate_limit(10)
 async def on_bang_add(message: types.Message):
     logging.log(logging.INFO, f'!add from: {message["from"]} - "{message.text}"')
-    reply = message['reply_to_message']
-    if reply:
-        new_quote = {'message_id': reply.message_id, 'text': reply.text}
-    else:
-        new_quote = {'text': message.text.lstrip('!add ')}
 
-    if new_quote['text']:
-        qdb.add(new_quote)
-        logging.log(logging.INFO, f'Add quote "{new_quote}"')
-        await message.reply(f'добавил: {new_quote["text"]}', reply=False)
+    is_reply, id_, args = parse_bang_command(message, 'add')
+    if not args:
+        return
+
+    new_quote = {'message_id': id_, 'text': args} if is_reply else {'text': args}
+    qdb.add(new_quote)
+    logging.log(logging.INFO, f'Add quote "{new_quote}"')
+    await message.reply(f'добавил: {new_quote}', reply=False)
 
 
 @dp.message_handler(
@@ -100,18 +102,13 @@ async def on_bang_inspire(message: types.Message):
 )
 @rate_limit(5)
 async def on_bang_lmgtfy(message: types.Message):
-    reply = message['reply_to_message']
-    if reply:
-        args = message.text.lstrip("!lmgtfy ")
-        if not args:
-            query = f'{engine_link}{"+".join(message.reply_to_message.text.split(" "))}'
-        else:
-            query = f'{engine_link}{"+".join(message.text.lstrip("!lmgtfy ").split(" "))}'
-        id_ = message.reply_to_message.message_id
-    else:
-        query = f'{engine_link}{"+".join(message.text.lstrip("!lmgtfy ").split(" "))}'
-        id_ = message.message_id
-    await bot.send_message(message.chat.id, query, disable_web_page_preview=True, reply_to_message_id=id_)
+    _, id_, args = parse_bang_command(message, 'lmgtfy')
+    await bot.send_message(
+        message.chat.id,
+        f'{engine_link}{"+".join(args.split(" "))}',
+        disable_web_page_preview=True,
+        reply_to_message_id=id_
+    )
 
 
 @dp.message_handler(
@@ -137,13 +134,14 @@ async def on_bang_quote(message: types.Message):
 )
 @rate_limit(5)
 async def on_bang_rules(message: types.Message):
-    reply = message['reply_to_message']
-    if reply:
-        id_ = message.reply_to_message.message_id
-    else:
-        id_ = message.message_id
-    await bot.send_message(message.chat.id, f'[сюда]({rules_link}) читай',
-                           parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
+    _, id_, _ = parse_bang_command(message, message.text[1:])   # TODO HACK meh
+    await bot.send_message(
+        message.chat.id,
+        f'[сюда]({rules_link}) читай',
+        parse_mode='MarkdownV2',
+        disable_web_page_preview=True,
+        reply_to_message_id=id_
+    )
 
 
 @dp.message_handler(
@@ -153,13 +151,14 @@ async def on_bang_rules(message: types.Message):
 )
 @rate_limit(5)
 async def on_bang_nometa(message: types.Message):
-    reply = message['reply_to_message']
-    if reply:
-        id_ = message.reply_to_message.message_id
-    else:
-        id_ = message.message_id
-    await bot.send_message(message.chat.id, f'[nometa\\.xyz](http://nometa.xyz)',
-                           parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
+    _, id_, _ = parse_bang_command(message, 'nometa')
+    await bot.send_message(
+        message.chat.id,
+        f'[nometa\\.xyz](http://nometa.xyz)',
+        parse_mode='MarkdownV2',
+        disable_web_page_preview=True,
+        reply_to_message_id=id_
+    )
 
 
 @dp.message_handler(
@@ -183,12 +182,11 @@ async def on_bang_help(message: types.Message):
 )
 @rate_limit(5)
 async def ob_bang_lutz(message: types.Message):
-    reply = message['reply_to_message']
-    msg = message
-    if reply:
-        msg = message.reply_to_message
-    await bot.send_message(message.chat.id,
-                           f'{_get_user_link(msg)} вот, не позорься: https://t.me/python_books_archive/565')
+    await message.reply(
+        f'{user_link(message if not message.reply_to_message else message.reply_to_message)} '
+        f'вот, не позорься: https://t.me/python_books_archive/565',
+        reply=False
+    )
 
 
 @dp.message_handler(
@@ -198,7 +196,11 @@ async def ob_bang_lutz(message: types.Message):
 )
 @rate_limit(5)
 async def on_bang_django(message: types.Message):
-    await message.reply(f'{_get_user_link(message)} держи, поискал за тебя: https://t.me/c/1338616632/133706', reply=False)
+    await message.reply(
+        f'{user_link(message)} '
+        f'держи, поискал за тебя: https://t.me/c/1338616632/133706',
+        reply=False
+    )
 
 
 @dp.message_handler()
@@ -209,15 +211,8 @@ async def default_handler(message: types.Message):
         lowered = message.text.lower()
         if 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered:
             await message.reply('у нас тут таких не любят')
-    if num < 2:
+    if num < 2 and is_handled_chat(message, handled_chats):
         await on_bang_quote(message)
-
-
-def _get_user_link(message: types.Message):
-    name = f'@{message.from_user.username}'
-    if name == '@None':
-        name = f'{message.from_user.first_name}'
-    return name
 
 
 def main():
