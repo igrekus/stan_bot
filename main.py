@@ -15,8 +15,8 @@ bot = Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 
-@dp.message_handler(lambda msg: is_private_command(msg, '/start'))
-@rate_limit(5, 'start')
+@dp.message_handler(lambda msg: is_private_command(msg, 'register'))
+@rate_limit(5, 'register')
 async def on_private_start(message: types.Message):
     logging.info(f'Registering user {message.from_user}')
     bot_auth.register_user(message)
