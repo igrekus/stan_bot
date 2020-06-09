@@ -10,9 +10,9 @@ def has_reply(message: types.Message):
     return bool(message['reply_to_message'])
 
 
-def parse_bang_command(message: types.Message):
+def parse_bang_command(message: types.Message, command: str):
     reply = message['reply_to_message']
-    args = message.text.lstrip("!lmgtfy")
+    args = message.text.lstrip(f'!{command}')
 
     if reply:
         if not args:
