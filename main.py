@@ -15,6 +15,9 @@ bot = Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 
+# TODO move logging to a middleware class
+
+
 @dp.message_handler(lambda msg: is_private_command(msg, 'register'))
 @rate_limit(5, 'register')
 async def on_private_start(message: types.Message):
