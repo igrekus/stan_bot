@@ -55,16 +55,15 @@ async def on_admin_private_message(message: types.Message):
 @rate_limit(10)
 async def on_bang_add(message: types.Message):
     logging.log(logging.INFO, f'!add from: {message["from"]} - "{message.text}"')
-    reply = message['reply_to_message']
-    if reply:
-        new_quote = {'message_id': reply.message_id, 'text': reply.text}
-    else:
-        new_quote = {'text': message.text.lstrip('!add ')}
 
-    if new_quote['text']:
-        qdb.add(new_quote)
-        logging.log(logging.INFO, f'Add quote "{new_quote}"')
-        await message.reply(f'добавил: {new_quote["text"]}', reply=False)
+    is_reply, id_, args = parse_bang_command(message, 'add')
+    if not args:
+        return
+
+    new_quote = {'message_id': id_, 'text': args} if is_reply else {'text': args}
+    qdb.add(new_quote)
+    logging.log(logging.INFO, f'Add quote "{new_quote}"')
+    await message.reply(f'добавил: {new_quote}', reply=False)
 
 
 @dp.message_handler(
