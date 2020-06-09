@@ -8,6 +8,7 @@ from middleware import rate_limit, ThrottlingMiddleware
 
 from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, bot_admins, bot_auth, chat_alias, handled_chats
 from filters import *
+from helpers import *
 
 logging.basicConfig(level=logging.INFO)
 
@@ -102,18 +103,13 @@ async def on_bang_inspire(message: types.Message):
 )
 @rate_limit(5)
 async def on_bang_lmgtfy(message: types.Message):
-    reply = message['reply_to_message']
-    if reply:
-        args = message.text.lstrip("!lmgtfy ")
-        if not args:
-            query = f'{engine_link}{"+".join(message.reply_to_message.text.split(" "))}'
-        else:
-            query = f'{engine_link}{"+".join(message.text.lstrip("!lmgtfy ").split(" "))}'
-        id_ = message.reply_to_message.message_id
-    else:
-        query = f'{engine_link}{"+".join(message.text.lstrip("!lmgtfy ").split(" "))}'
-        id_ = message.message_id
-    await bot.send_message(message.chat.id, query, disable_web_page_preview=True, reply_to_message_id=id_)
+    id_, args = parse_bang_command(message)
+    await bot.send_message(
+        message.chat.id,
+        f'{engine_link}{"+".join(args.split(" "))}',
+        disable_web_page_preview=True,
+        reply_to_message_id=id_
+    )
 
 
 @dp.message_handler(
