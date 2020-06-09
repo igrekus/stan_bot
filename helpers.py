@@ -2,7 +2,8 @@ from aiogram import types
 
 __all__ = [
     'has_reply',
-    'parse_bang_command'
+    'parse_bang_command',
+    'user_link'
 ]
 
 
@@ -21,3 +22,10 @@ def parse_bang_command(message: types.Message, command: str):
         id_ = message.message_id
 
     return has_reply(message), id_, args.strip()
+
+
+def user_link(message: types.Message):
+    name = f'@{message.from_user.username}'
+    if name == '@None':
+        name = f'{message.from_user.first_name}'
+    return name

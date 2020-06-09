@@ -182,12 +182,11 @@ async def on_bang_help(message: types.Message):
 )
 @rate_limit(5)
 async def ob_bang_lutz(message: types.Message):
-    reply = message['reply_to_message']
-    msg = message
-    if reply:
-        msg = message.reply_to_message
-    await bot.send_message(message.chat.id,
-                           f'{_get_user_link(msg)} вот, не позорься: https://t.me/python_books_archive/565')
+    await message.reply(
+        f'{user_link(message if not message.reply_to_message else message.reply_to_message)} '
+        f'вот, не позорься: https://t.me/python_books_archive/565',
+        reply=False
+    )
 
 
 @dp.message_handler(
@@ -197,7 +196,11 @@ async def ob_bang_lutz(message: types.Message):
 )
 @rate_limit(5)
 async def on_bang_django(message: types.Message):
-    await message.reply(f'{_get_user_link(message)} держи, поискал за тебя: https://t.me/c/1338616632/133706', reply=False)
+    await message.reply(
+        f'{user_link(message)} '
+        f'держи, поискал за тебя: https://t.me/c/1338616632/133706',
+        reply=False
+    )
 
 
 @dp.message_handler()
@@ -210,13 +213,6 @@ async def default_handler(message: types.Message):
             await message.reply('у нас тут таких не любят')
     if num < 2:
         await on_bang_quote(message)
-
-
-def _get_user_link(message: types.Message):
-    name = f'@{message.from_user.username}'
-    if name == '@None':
-        name = f'{message.from_user.first_name}'
-    return name
 
 
 def main():
