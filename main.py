@@ -103,7 +103,7 @@ async def on_bang_inspire(message: types.Message):
 )
 @rate_limit(5)
 async def on_bang_lmgtfy(message: types.Message):
-    id_, args = parse_bang_command(message, 'lmgtfy')
+    _, id_, args = parse_bang_command(message, 'lmgtfy')
     await bot.send_message(
         message.chat.id,
         f'{engine_link}{"+".join(args.split(" "))}',
