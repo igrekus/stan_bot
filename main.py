@@ -6,7 +6,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, SELF_USER, bot_admins, bot_auth, chat_alias, handled_chats
+from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, bot_admins, bot_auth, chat_alias, handled_chats
 from filters import *
 
 logging.basicConfig(level=logging.INFO)
