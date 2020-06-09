@@ -211,7 +211,7 @@ async def default_handler(message: types.Message):
         lowered = message.text.lower()
         if 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered:
             await message.reply('у нас тут таких не любят')
-    if num < 2:
+    if num < 2 and is_handled_chat(message, handled_chats):
         await on_bang_quote(message)
 
 
