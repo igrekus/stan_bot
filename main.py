@@ -134,13 +134,14 @@ async def on_bang_quote(message: types.Message):
 )
 @rate_limit(5)
 async def on_bang_rules(message: types.Message):
-    reply = message['reply_to_message']
-    if reply:
-        id_ = message.reply_to_message.message_id
-    else:
-        id_ = message.message_id
-    await bot.send_message(message.chat.id, f'[сюда]({rules_link}) читай',
-                           parse_mode='MarkdownV2', disable_web_page_preview=True, reply_to_message_id=id_)
+    _, id_, _ = parse_bang_command(message, message.text[1:])   # TODO HACK meh
+    await bot.send_message(
+        message.chat.id,
+        f'[сюда]({rules_link}) читай',
+        parse_mode='MarkdownV2',
+        disable_web_page_preview=True,
+        reply_to_message_id=id_
+    )
 
 
 @dp.message_handler(
