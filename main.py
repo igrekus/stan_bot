@@ -23,8 +23,11 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 @rate_limit(5, 'register')
 async def on_private_start(message: types.Message):
     logging.info(f'Registering user {message.from_user}')
-    bot_auth.register_user(message)
-    await bot.send_message(message.chat.id, 'start command issued')
+    result = bot_auth.register_user(message.from_user)
+    if result:
+        await bot.send_message(message.chat.id, 'записал')
+    else:
+        await bot.send_message(message.chat.id, 'что-то пошло не так')
 
 
 @dp.message_handler(lambda msg: is_private_admin_message(msg, admins=bot_admins))
@@ -207,12 +210,18 @@ async def on_bang_django(message: types.Message):
 async def default_handler(message: types.Message):
     num = random.randint(1, 100)
     print('>', num, message)
-    if message.chat.id == PY_CHAT_ID:
+
+    if is_handled_chat(message, handled_chats):
         lowered = message.text.lower()
         if 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered:
             await message.reply('у нас тут таких не любят')
-    if num < 2 and is_handled_chat(message, handled_chats):
-        await on_bang_quote(message)
+
+        if num < 2 and is_handled_chat(message, handled_chats):
+            await on_bang_quote(message)
+
+        if message.entities and not bot_auth.has_permission(message.from_user):
+            await message.reply('не надо постить ссылки без разрешения')
+            await message.delete()
 
 
 def main():
