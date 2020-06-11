@@ -3,6 +3,7 @@ import dataset
 
 class BotAuth:
     def __init__(self, path='quotes.db'):
+        # TODO store active permits in memory
         self.db = dataset.connect(f'sqlite:///{path}')
         self.authorized: dataset.table.Table = self.db['tg_user']
         self.permits: dataset.table.Table = self.db['tg_permits']
