@@ -219,9 +219,11 @@ async def default_handler(message: types.Message):
         if num < 2 and is_handled_chat(message, handled_chats):
             await on_bang_quote(message)
 
-        if message.entities and not bot_auth.has_permission(message.from_user):
-            await message.reply('не надо постить ссылки без разрешения')
-            await message.delete()
+        if message.entities:
+            for ent in message.entities:
+                if ent.type in ['url', 'mention'] and not bot_auth.has_permission(message.from_user):
+                    await message.reply('не надо постить ссылки без разрешения')
+                    await message.delete()
 
 
 def main():
