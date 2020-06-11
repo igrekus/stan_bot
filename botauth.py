@@ -3,6 +3,7 @@ import dataset
 
 class BotAuth:
     def __init__(self, path='quotes.db'):
+        # TODO store active permits in memory
         self.db = dataset.connect(f'sqlite:///{path}')
         self.authorized: dataset.table.Table = self.db['tg_user']
         self.permits: dataset.table.Table = self.db['tg_permits']
@@ -30,10 +31,8 @@ class BotAuth:
         return True
 
     def has_permission(self, user):
-        exists = list(self.authorized.find(tg_id=user.id))
-        if not exists:
+        if not list(self.authorized.find(tg_id=user.id)):
             return False
-        has_permits = list(self.user_permit_map.find(tg_user=user.id, tg_permit=[perm['id'] for perm in self.base_permits]))
-        if not has_permits:
-            return False
-        return True
+        return bool(list(
+            self.user_permit_map.find(tg_user=user.id, tg_permit=[perm['id'] for perm in self.base_permits])
+        ))
