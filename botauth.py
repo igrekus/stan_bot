@@ -28,3 +28,12 @@ class BotAuth:
             }, ['tg_user', 'tg_permit'])
 
         return True
+
+    def has_permission(self, user):
+        exists = list(self.authorized.find(tg_id=user.id))
+        if not exists:
+            return False
+        has_permits = list(self.user_permit_map.find(tg_user=user.id, tg_permit=[perm['id'] for perm in self.base_permits]))
+        if not has_permits:
+            return False
+        return True
