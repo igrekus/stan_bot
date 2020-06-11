@@ -23,8 +23,11 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 @rate_limit(5, 'register')
 async def on_private_start(message: types.Message):
     logging.info(f'Registering user {message.from_user}')
-    bot_auth.register_user(message)
-    await bot.send_message(message.chat.id, 'start command issued')
+    result = bot_auth.register_user(message.from_user)
+    if result:
+        await bot.send_message(message.chat.id, 'записал')
+    else:
+        await bot.send_message(message.chat.id, 'что-то пошло не так')
 
 
 @dp.message_handler(lambda msg: is_private_admin_message(msg, admins=bot_admins))
