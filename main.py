@@ -227,7 +227,7 @@ async def default_handler(message: types.Message):
     print('>', num, message)
 
     if is_handled_chat(message, handled_chats):
-        if num < 2 and is_handled_chat(message, handled_chats):
+        if num < 2:
             await on_bang_quote(message)
 
 
