@@ -211,7 +211,7 @@ async def on_bang_django(message: types.Message):
     is_handled_chat(msg, handled_chats) and
     _is_yt_in(msg)
 )
-def on_yt_mention(message: types.Message):
+async def on_yt_mention(message: types.Message):
     await message.reply('у нас тут таких не любят')
 
 
