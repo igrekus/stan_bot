@@ -4,9 +4,11 @@ import requests
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.types import ContentType
+
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, PY_CHAT_ID, bot_admins, bot_auth, chat_alias, handled_chats
+from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, bot_admins, bot_auth, chat_alias, handled_chats
 from filters import *
 from helpers import *
 
@@ -219,6 +221,16 @@ def _is_yt_in(message):
     # TODO generalize for arbitrary text tokens
     lowered = message.text.lower()
     return 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered
+
+
+@dp.message_handler(content_types=[ContentType.AUDIO, ContentType.DOCUMENT, ContentType.VIDEO, ContentType.VIDEO_NOTE, ContentType.VOICE, ContentType.POLL, ContentType.PHOTO])
+async def on_media_post(message: types.Message):
+    logging.info(f'media post: {message}')
+
+
+@dp.message_handler(content_types=[ContentType.NEW_CHAT_MEMBERS, ContentType.LEFT_CHAT_MEMBER])
+async def on_join_left_menber(message: types.Message):
+    logging.info(f'join/left: {message}')
 
 
 @dp.message_handler()
