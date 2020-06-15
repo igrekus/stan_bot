@@ -206,24 +206,29 @@ async def on_bang_django(message: types.Message):
     )
 
 
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    _is_yt_in(msg)
+)
+async def on_yt_mention(message: types.Message):
+    await message.reply('у нас тут таких не любят')
+
+
+def _is_yt_in(message):
+    # TODO generalize for arbitrary text tokens
+    lowered = message.text.lower()
+    return 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered
+
+
 @dp.message_handler()
 async def default_handler(message: types.Message):
     num = random.randint(1, 100)
     print('>', num, message)
 
     if is_handled_chat(message, handled_chats):
-        lowered = message.text.lower()
-        if 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered:
-            await message.reply('у нас тут таких не любят')
-
-        if num < 2 and is_handled_chat(message, handled_chats):
+        if num < 2:
             await on_bang_quote(message)
-
-        if message.entities:
-            for ent in message.entities:
-                if ent.type in ['url', 'mention'] and not bot_auth.has_permission(message.from_user):
-                    await message.reply('не надо постить ссылки без разрешения')
-                    await message.delete()
 
 
 def main():
