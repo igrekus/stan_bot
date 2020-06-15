@@ -16,6 +16,7 @@ def is_private_message(message: types.Message):
 
 
 def is_user_admin(message: types.Message, admins: list):
+    # TODO query db for user status
     return message['from'].id in admins
 
 

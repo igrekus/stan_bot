@@ -25,7 +25,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 @rate_limit(5, 'register')
 async def on_private_start(message: types.Message):
     logging.info(f'Registering user {message.from_user}')
-    result = bot_auth.register_user(message.from_user)
+    result = bot_auth.register_tg_user(message.from_user)
     if result:
         await bot.send_message(message.chat.id, 'записал')
     else:
@@ -215,6 +215,32 @@ async def on_bang_django(message: types.Message):
 )
 async def on_yt_mention(message: types.Message):
     await message.reply('у нас тут таких не любят')
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'voice') and
+    is_user_admin(msg, bot_admins)
+)
+async def on_bang_voice(message: types.Message):
+    is_reply, id_, _ = parse_bang_command(message, 'voice')
+    if not is_reply:
+        return
+    res = bot_auth.voice(id_)
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'devoice') and
+    is_user_admin(msg, bot_admins)
+)
+async def on_bang_voice(message: types.Message):
+    is_reply, id_, _ = parse_bang_command(message, 'devoice')
+    if not is_reply:
+        return
+    res = bot_auth.devoice(id_)
 
 
 def _is_yt_in(message):

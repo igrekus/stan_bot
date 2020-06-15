@@ -19,6 +19,7 @@ PY_CHAT_ID = creds['py_chat']
 TEST_CHAT_ID = -1001204542632
 SELF_USER = creds['self_user']
 
+# TODO move auth stuff to the db
 bot_admins = [SELF_USER]
 handled_chats = [PY_CHAT_ID, TEST_CHAT_ID]
 
