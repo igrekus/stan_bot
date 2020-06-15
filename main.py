@@ -25,7 +25,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 @rate_limit(5, 'register')
 async def on_private_start(message: types.Message):
     logging.info(f'Registering user {message.from_user}')
-    result = bot_auth.register_user(message.from_user)
+    result = bot_auth.register_tg_user(message.from_user)
     if result:
         await bot.send_message(message.chat.id, 'записал')
     else:

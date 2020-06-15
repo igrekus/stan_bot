@@ -10,29 +10,38 @@ class BotAuth:
         self.user_permit_map: dataset.table.Table = self.db['tg_user_permits']
         self.base_permits = list(self.permits.find(title=['post links', 'post media']))
 
-    def register_user(self, user):
-        if list(self.authorized.find(tg_id=user.id)):
+    def tg_user_registered(self, user):
+        return bool(list(self.authorized.find(tg_id=user.id)))
+
+    def register_tg_user(self, user):
+        if self.tg_user_registered(user):
             return False
 
-        new_user = {
+        # TODO make bot user class
+        new_bot_user = self._upsert_bot_user(user)
+        self._add_base_permits(new_bot_user)
+        return True
+
+    def has_permission(self, bot_user):
+        if not list(self.authorized.find(tg_id=bot_user.id)):
+            return False
+        return bool(list(
+            self.user_permit_map.find(tg_user=bot_user.id, tg_permit=[perm['id'] for perm in self.base_permits])
+        ))
+
+    def _upsert_bot_user(self, user):
+        new_bot_user = {
             'tg_id': user.id,
             'username': user.username,
             'first_name': user.first_name,
             'last_name': user.last_name,
         }
+        self.authorized.upsert(new_bot_user, ['tg_id'])
+        return new_bot_user
 
-        self.authorized.upsert(new_user, ['tg_id'])
+    def _add_base_permits(self, new_bot_user):
         for perm in self.base_permits:
             self.user_permit_map.upsert({
-                'tg_user': new_user['tg_id'],
+                'tg_user': new_bot_user['tg_id'],
                 'tg_permit': perm['id']
             }, ['tg_user', 'tg_permit'])
-
-        return True
-
-    def has_permission(self, user):
-        if not list(self.authorized.find(tg_id=user.id)):
-            return False
-        return bool(list(
-            self.user_permit_map.find(tg_user=user.id, tg_permit=[perm['id'] for perm in self.base_permits])
-        ))
