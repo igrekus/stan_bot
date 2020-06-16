@@ -224,10 +224,11 @@ async def on_yt_mention(message: types.Message):
     is_user_admin(msg, bot_admins)
 )
 async def on_bang_voice(message: types.Message):
-    is_reply, id_, _ = parse_bang_command(message, 'voice')
-    if not is_reply:
+    if not message.reply_to_message:
         return
-    res = bot_auth.voice(id_)
+    res = bot_auth.voice(message.reply_to_message.from_user)
+    if res:
+        await message.reply('ок', reply=False)
 
 
 @dp.message_handler(
@@ -237,10 +238,11 @@ async def on_bang_voice(message: types.Message):
     is_user_admin(msg, bot_admins)
 )
 async def on_bang_voice(message: types.Message):
-    is_reply, id_, _ = parse_bang_command(message, 'devoice')
-    if not is_reply:
+    if not message.reply_to_message:
         return
-    res = bot_auth.devoice(id_)
+    res = bot_auth.devoice(message.reply_to_message.from_user)
+    if res:
+        await message.reply('покарано', reply=False)
 
 
 def _is_yt_in(message):
