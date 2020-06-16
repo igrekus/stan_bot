@@ -68,7 +68,7 @@ async def on_bang_add(message: types.Message):
     new_quote = {'message_id': id_, 'text': args} if is_reply else {'text': args}
     qdb.add(new_quote)
     logging.log(logging.INFO, f'Add quote "{new_quote}"')
-    await message.reply(f'добавил: {new_quote}', reply=False)
+    await message.reply(f'добавил: {new_quote["text"]}', reply=False)
 
 
 @dp.message_handler(
