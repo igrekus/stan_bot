@@ -10,15 +10,15 @@ class BotAuth:
         self.user_permit_map: dataset.table.Table = self.db['tg_user_permits']
         self.base_permits = list(self.permits.find(title=['post links', 'post media']))
 
-    def tg_user_registered(self, user):
-        return bool(list(self.authorized.find(tg_id=user.id)))
+    def bot_user_exists(self, tg_user):
+        return bool(list(self.authorized.find(tg_id=tg_user.id)))
 
-    def register_tg_user(self, user):
-        if self.tg_user_registered(user):
+    def register_tg_user(self, tg_user):
+        if self.bot_user_exists(tg_user):
             return False
 
         # TODO make bot user class
-        new_bot_user = self._upsert_bot_user(user)
+        new_bot_user = self._upsert_bot_user(tg_user)
         self._add_base_permits(new_bot_user)
         return True
 
