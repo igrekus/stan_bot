@@ -159,7 +159,7 @@ async def on_bang_nometa(message: types.Message):
     _, id_, _ = parse_bang_command(message, 'nometa')
     await bot.send_message(
         message.chat.id,
-        f'[nometa\\.xyz](http://nometa.xyz)',
+        f'[nometa\\.xyz](http://nometa.xyz)\n[neprivet](https://neprivet.ru/)',
         parse_mode='MarkdownV2',
         disable_web_page_preview=True,
         reply_to_message_id=id_
