@@ -8,7 +8,7 @@ from aiogram.types import ContentType
 
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, bot_admins, bot_auth, chat_alias, handled_chats
+from config import proxy, token, rules_link, engine_link, google_link, lat_rus_map, qdb, bot_admins, bot_auth, chat_alias, handled_chats
 from filters import *
 from helpers import *
 
@@ -119,6 +119,22 @@ async def on_bang_lmgtfy(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'g')
+)
+@rate_limit(5)
+async def on_bang_lmgtfy(message: types.Message):
+    _, id_, args = parse_bang_command(message, 'g')
+    await bot.send_message(
+        message.chat.id,
+        f'{google_link}{"+".join(args.split(" "))}',
+        disable_web_page_preview=True,
+        reply_to_message_id=id_
+    )
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
     is_bang_command(msg, 'quote')
 )
 @rate_limit(5)
@@ -189,7 +205,10 @@ async def on_bang_help(message: types.Message):
 async def ob_bang_lutz(message: types.Message):
     await message.reply(
         f'{user_link(message if not message.reply_to_message else message.reply_to_message)} '
-        f'вот, не позорься: https://t.me/python_books_archive/565',
+        f'вот, не позорься:\n'
+        f'https://t.me/python_books_archive/565\n'
+        f'https://t.me/pythonlib/162\n'
+        f'https://t.me/python_books_archive/95',
         reply=False
     )
 
