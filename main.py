@@ -205,7 +205,10 @@ async def on_bang_help(message: types.Message):
 async def ob_bang_lutz(message: types.Message):
     await message.reply(
         f'{user_link(message if not message.reply_to_message else message.reply_to_message)} '
-        f'вот, не позорься: https://t.me/python_books_archive/565',
+        f'вот, не позорься:\n'
+        f'https://t.me/python_books_archive/565\n'
+        f'https://t.me/pythonlib/162\n'
+        f'https://t.me/python_books_archive/95',
         reply=False
     )
 
