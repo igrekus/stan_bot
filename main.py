@@ -267,7 +267,7 @@ async def on_bang_voice(message: types.Message):
 def _is_yt_in(message):
     # TODO generalize for arbitrary text tokens
     lowered = message.text.lower()
-    return 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered
+    return 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered or 'хоуди' in lowered
 
 
 @dp.message_handler(content_types=[ContentType.AUDIO, ContentType.DOCUMENT, ContentType.VIDEO, ContentType.VIDEO_NOTE, ContentType.VOICE, ContentType.POLL, ContentType.PHOTO])
