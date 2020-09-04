@@ -273,11 +273,27 @@ def _is_yt_in(message):
 @dp.message_handler(content_types=[ContentType.AUDIO, ContentType.DOCUMENT, ContentType.VIDEO, ContentType.VIDEO_NOTE, ContentType.VOICE, ContentType.POLL, ContentType.PHOTO])
 async def on_media_post(message: types.Message):
     logging.info(f'media post: {message}')
+    # await bot.send_message(289682796, f"potential spam from {message.from_user}")
+
+
+@dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])
+async def on_pinned_message(message: types.Message):
+    logging.info(f'pin message: {message}')
 
 
 @dp.message_handler(content_types=[ContentType.NEW_CHAT_MEMBERS, ContentType.LEFT_CHAT_MEMBER])
 async def on_join_left_menber(message: types.Message):
     logging.info(f'join/left: {message}')
+
+
+# TODO refactor
+@dp.message_handler(
+    lambda msg: bool(msg.entities)
+)
+async def on_join_left_menber(message: types.Message):
+    logging.info(f'entity: {message}')
+    # await message.delete()
+    # await bot.send_message(810095709, f'spam? "{message.text}" from {message.from_user}')
 
 
 @dp.message_handler()
