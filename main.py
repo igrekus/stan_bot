@@ -8,7 +8,7 @@ from aiogram.types import ContentType
 
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, lat_rus_map, qdb, bot_admins, bot_auth, chat_alias, handled_chats
+from config import proxy, token, rules_link, engine_link, google_link, lat_rus_map, qdb, bot_admins, bot_auth, chat_alias, handled_chats
 from filters import *
 from helpers import *
 
@@ -111,6 +111,22 @@ async def on_bang_lmgtfy(message: types.Message):
     await bot.send_message(
         message.chat.id,
         f'{engine_link}{"+".join(args.split(" "))}',
+        disable_web_page_preview=True,
+        reply_to_message_id=id_
+    )
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'g')
+)
+@rate_limit(5)
+async def on_bang_lmgtfy(message: types.Message):
+    _, id_, args = parse_bang_command(message, 'g')
+    await bot.send_message(
+        message.chat.id,
+        f'{google_link}{"+".join(args.split(" "))}',
         disable_web_page_preview=True,
         reply_to_message_id=id_
     )
@@ -251,7 +267,7 @@ async def on_bang_voice(message: types.Message):
 def _is_yt_in(message):
     # TODO generalize for arbitrary text tokens
     lowered = message.text.lower()
-    return 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered
+    return 'хауди' in lowered or 'дудар' in lowered or 'дудь' in lowered or 'дудя' in lowered or 'хоуди' in lowered
 
 
 @dp.message_handler(content_types=[ContentType.AUDIO, ContentType.DOCUMENT, ContentType.VIDEO, ContentType.VIDEO_NOTE, ContentType.VOICE, ContentType.POLL, ContentType.PHOTO])
