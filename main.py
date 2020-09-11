@@ -20,6 +20,11 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 # TODO move logging to a middleware class
 
+@dp.message_handler(lambda msg: is_private_command(msg, 'ban'))
+async def on_private_ban(message: types.Message):
+    await bot.delete_message(-1001338616632, 201690)
+    # await bot.restrict_chat_member(-1001338616632, 1319784856, can_send_messages=False)
+
 
 @dp.message_handler(lambda msg: is_private_command(msg, 'register'))
 @rate_limit(5, 'register')
