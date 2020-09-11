@@ -307,6 +307,10 @@ async def default_handler(message: types.Message):
     num = random.randint(1, 100)
     print('>', num, message)
 
+    if message.from_user.id == 1319784856:
+        print('del message')
+        await message.delete()
+
     if is_handled_chat(message, handled_chats):
         if num < 3:
             await on_bang_quote(message)
