@@ -23,7 +23,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 @dp.message_handler(lambda msg: is_private_command(msg, 'register'))
 @rate_limit(5, 'register')
-async def on_private_start(message: types.Message):
+async def on_private_register(message: types.Message):
     logging.info(f'Registering user {message.from_user}')
     result = bot_auth.register_tg_user(message.from_user)
     if result:
