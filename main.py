@@ -290,9 +290,10 @@ async def on_join_left_menber(message: types.Message):
 @dp.message_handler(
     lambda msg: bool(msg.entities)
 )
-async def on_join_left_menber(message: types.Message):
+async def on_entity_in_message(message: types.Message):
     logging.info(f'entity: {message}')
-    # await message.delete()
+    if 'hypebomber' in message.text:
+        await message.delete()
     # await bot.send_message(810095709, f'spam? "{message.text}" from {message.from_user}')
 
 
