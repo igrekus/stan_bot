@@ -20,10 +20,15 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 # TODO move logging to a middleware class
 
+@dp.message_handler(lambda msg: is_private_command(msg, 'ban'))
+async def on_private_ban(message: types.Message):
+    await bot.delete_message(-1001338616632, 201690)
+    # await bot.restrict_chat_member(-1001338616632, 1319784856, can_send_messages=False)
+
 
 @dp.message_handler(lambda msg: is_private_command(msg, 'register'))
 @rate_limit(5, 'register')
-async def on_private_start(message: types.Message):
+async def on_private_register(message: types.Message):
     logging.info(f'Registering user {message.from_user}')
     result = bot_auth.register_tg_user(message.from_user)
     if result:
@@ -69,6 +74,23 @@ async def on_bang_add(message: types.Message):
     qdb.add(new_quote)
     logging.log(logging.INFO, f'Add quote "{new_quote}"')
     await message.reply(f'добавил: {new_quote["text"]}', reply=False)
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'del') and
+    is_user_admin(msg, bot_admins)
+)
+async def on_bang_del(message: types.Message):
+    logging.log(logging.INFO, f'!del from: {message["from"]} - "{message.text}"')
+
+    is_reply, id_, args = parse_bang_command(message, 'add')
+    if not is_reply:
+        return
+
+    await bot.delete_message(message.chat.id, id_)
+    await message.delete()
 
 
 @dp.message_handler(
@@ -273,6 +295,12 @@ def _is_yt_in(message):
 @dp.message_handler(content_types=[ContentType.AUDIO, ContentType.DOCUMENT, ContentType.VIDEO, ContentType.VIDEO_NOTE, ContentType.VOICE, ContentType.POLL, ContentType.PHOTO])
 async def on_media_post(message: types.Message):
     logging.info(f'media post: {message}')
+    # await bot.send_message(289682796, f"potential spam from {message.from_user}")
+
+
+@dp.message_handler(content_types=[ContentType.PINNED_MESSAGE])
+async def on_pinned_message(message: types.Message):
+    logging.info(f'pin message: {message}')
 
 
 @dp.message_handler(content_types=[ContentType.NEW_CHAT_MEMBERS, ContentType.LEFT_CHAT_MEMBER])
@@ -280,10 +308,25 @@ async def on_join_left_menber(message: types.Message):
     logging.info(f'join/left: {message}')
 
 
+# TODO refactor
+@dp.message_handler(
+    lambda msg: bool(msg.entities)
+)
+async def on_entity_in_message(message: types.Message):
+    logging.info(f'entity: {message}')
+    if 'hypebomber' in message.text:
+        await message.delete()
+    # await bot.send_message(810095709, f'spam? "{message.text}" from {message.from_user}')
+
+
 @dp.message_handler()
 async def default_handler(message: types.Message):
     num = random.randint(1, 100)
     print('>', num, message)
+
+    if message.from_user.id == 1319784856:
+        print('del message')
+        await message.delete()
 
     if is_handled_chat(message, handled_chats):
         if num < 3:
