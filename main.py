@@ -79,6 +79,23 @@ async def on_bang_add(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    is_bang_command(msg, 'del') and
+    is_user_admin(msg, bot_admins)
+)
+async def on_bang_del(message: types.Message):
+    logging.log(logging.INFO, f'!del from: {message["from"]} - "{message.text}"')
+
+    is_reply, id_, args = parse_bang_command(message, 'add')
+    if not is_reply:
+        return
+
+    await bot.delete_message(message.chat.id, id_)
+    await message.delete()
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
     is_bang_command(msg, 'tr')
 )
 @rate_limit(10)
