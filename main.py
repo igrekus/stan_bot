@@ -278,7 +278,7 @@ async def on_bang_voice(message: types.Message):
     is_bang_command(msg, 'devoice') and
     is_user_admin(msg, bot_admins)
 )
-async def on_bang_voice(message: types.Message):
+async def on_bang_devoice(message: types.Message):
     if not message.reply_to_message:
         return
     res = bot_auth.devoice(message.reply_to_message.from_user)
