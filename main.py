@@ -212,13 +212,7 @@ async def on_bang_nometa(message: types.Message):
 @rate_limit(5)
 async def on_bang_rimshot(message: types.Message):
     _, id_, _ = parse_bang_command(message, 'bdmtss')
-    await bot.send_message(
-        message.chat.id,
-        f'https://t\\.me/pythonchatru/207351',
-        parse_mode='MarkdownV2',
-        disable_web_page_preview=True,
-        reply_to_message_id=id_
-    )
+    await bot.forward_message(message.chat.id, message.chat.id, 211281)
 
 
 @dp.message_handler(
