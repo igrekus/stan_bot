@@ -214,7 +214,7 @@ async def on_bang_rimshot(message: types.Message):
     _, id_, _ = parse_bang_command(message, 'bdmtss')
     await bot.send_message(
         message.chat.id,
-        f'https://t.me/pythonchatru/207351',
+        f'https://t\\.me/pythonchatru/207351',
         parse_mode='MarkdownV2',
         disable_web_page_preview=True,
         reply_to_message_id=id_
