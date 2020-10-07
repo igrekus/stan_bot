@@ -335,7 +335,7 @@ async def default_handler(message: types.Message):
     num = random.randint(1, 100)
     print('>', num, message)
 
-    if message.from_user.id in == [1319784856, 1175535795]:
+    if message.from_user.id in [1319784856, 1175535795]:
         print('del message', message)
         await message.delete()
 
