@@ -8,7 +8,7 @@ from aiogram.types import ContentType
 
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, google_link, lat_rus_map, qdb, bot_admins, bot_auth, chat_alias, handled_chats
+from config import proxy, token, rules_link, engine_link, google_link, lat_rus_map, qdb, bot_admins, bot_auth, chat_alias, handled_chats, banned_users
 from filters import *
 from helpers import *
 
@@ -96,6 +96,7 @@ async def on_bang_del(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     is_bang_command(msg, 'tr')
 )
 @rate_limit(10)
@@ -125,6 +126,7 @@ async def on_bang_inspire(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     is_bang_command(msg, 'lmgtfy')
 )
 @rate_limit(5)
@@ -141,6 +143,7 @@ async def on_bang_lmgtfy(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     is_bang_command(msg, 'g')
 )
 @rate_limit(5)
@@ -157,6 +160,7 @@ async def on_bang_lmgtfy(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     is_bang_command(msg, 'quote')
 )
 @rate_limit(5)
@@ -173,6 +177,7 @@ async def on_bang_quote(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     (is_bang_command(msg, 'rules') or is_bang_command(msg, 'правила'))
 )
 @rate_limit(5)
@@ -190,6 +195,7 @@ async def on_bang_rules(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     is_bang_command(msg, 'nometa')
 )
 @rate_limit(5)
@@ -207,6 +213,7 @@ async def on_bang_nometa(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     is_bang_command(msg, 'bdmtss')
 )
 @rate_limit(5)
@@ -218,6 +225,7 @@ async def on_bang_rimshot(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     (is_bang_command(msg, 'help') or is_bang_command(msg, 'помощь') or is_bang_command(msg, 'хелп'))
 )
 @rate_limit(5)
@@ -232,6 +240,7 @@ async def on_bang_help(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     (is_bang_command(msg, 'lutz') or is_bang_command(msg, 'лутц'))
 )
 @rate_limit(5)
@@ -249,6 +258,7 @@ async def ob_bang_lutz(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     (is_bang_command(msg, 'django') or is_bang_command(msg, 'джанго'))
 )
 @rate_limit(5)
@@ -263,6 +273,7 @@ async def on_bang_django(message: types.Message):
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     _is_yt_in(msg)
 )
 async def on_yt_mention(message: types.Message):
@@ -332,12 +343,12 @@ async def on_entity_in_message(message: types.Message):
 
 @dp.message_handler()
 async def default_handler(message: types.Message):
-    num = random.randint(1, 100)
-    print('>', num, message)
-
-    if message.from_user.id in [1319784856, 1175535795]:
+    if message.from_user.id in banned_users:
         print('del message', message)
         await message.delete()
+
+    num = random.randint(1, 100)
+    print('>', num, message)
 
     if is_handled_chat(message, handled_chats):
         if num < 3:
