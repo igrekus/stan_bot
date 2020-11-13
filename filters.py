@@ -42,4 +42,4 @@ def is_handled_chat(message: types.Message, handled_chats: list):
 
 
 def is_banned(message: types.Message, banned_users: list):
-    return message.from_user.id in banned_users
+    return message['from'].id in banned_users

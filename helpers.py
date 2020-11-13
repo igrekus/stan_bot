@@ -21,7 +21,7 @@ def parse_bang_command(message: types.Message, command: str):
     else:
         id_ = message.message_id
 
-    return has_reply(message), id_, args.strip()
+    return has_reply(message), id_, args.strip() if args else ''
 
 
 def user_link(message: types.Message):
