@@ -336,7 +336,14 @@ async def on_join_left_menber(message: types.Message):
 )
 async def on_entity_in_message(message: types.Message):
     logging.info(f'entity: {message}')
+    if message.from_user.id in banned_users:
+        print('del message', message)
+        await message.delete()
     if 'hypebomber' in message.text:
+        await message.delete()
+    elif 'приватные прокси' in message.text:
+        await message.delete()
+    elif 'socks5' in message.text:
         await message.delete()
     # await bot.send_message(810095709, f'spam? "{message.text}" from {message.from_user}')
 
