@@ -18,7 +18,7 @@ bot = Bot(token=token, proxy=proxy)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 
-# TODO move logging to a middleware class
+# TODO move logging to a middleware class: https://surik00.gitbooks.io/aiogram-lessons/content/chapter3.html
 
 @dp.message_handler(lambda msg: is_private_command(msg, 'ban'))
 async def on_private_ban(message: types.Message):
