@@ -24,7 +24,7 @@ SELF_USER = creds['self_user']
 bot_admins = [SELF_USER]
 handled_chats = [PY_CHAT_ID, TEST_CHAT_ID]
 chat_admins = [810095709]
-banned_users = [875981908, 1319784856, 1175535795, 1353007865, 500423762]
+banned_users = [537076586, 875981908, 1319784856, 1175535795, 1353007865, 500423762]
 
 chat_alias = {
     'py': PY_CHAT_ID
