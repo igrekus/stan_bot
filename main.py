@@ -83,7 +83,7 @@ async def on_bang_add(message: types.Message):
     is_user_admin(msg, bot_admins)
 )
 async def on_bang_del(message: types.Message):
-    logging.log(logging.INFO, f'!del from: {message["from"]} - "{message.text}"')
+    logging.log(logging.INFO, f'!del from: {message["from"]} - "{message}"')
 
     is_reply, id_, args = parse_bang_command(message, 'add')
     if not is_reply:
