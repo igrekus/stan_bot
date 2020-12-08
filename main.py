@@ -255,6 +255,7 @@ async def ob_bang_lutz(message: types.Message):
     )
 
 
+# TODO refactor: parametrize handlers
 @dp.message_handler(
     lambda msg:
     is_handled_chat(msg, handled_chats) and
