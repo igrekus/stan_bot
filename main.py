@@ -274,6 +274,90 @@ async def on_bang_django(message: types.Message):
     lambda msg:
     is_handled_chat(msg, handled_chats) and
     not is_banned(msg, banned_users) and
+    (is_bang_command(msg, 'nobot'))
+)
+@rate_limit(5)
+async def on_bang_nobot(message: types.Message):
+    _, id_, _ = parse_bang_command(message, 'nobot')
+    await bot.send_message(
+        message.chat.id,
+        text=f'*Caution*:\n'
+             f'Telegram bot _should not_ be your first Python project\. '
+             f'Please learn `Python programming`, `project configuration`, '
+             f'`module handling` and `debugging` before working with Telegram bots\. '
+             f'There are many resources for this on the internet\.',
+        parse_mode='MarkdownV2',
+        reply_to_message_id=id_
+    )
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
+    (is_bang_command(msg, 'noparse'))
+)
+@rate_limit(5)
+async def on_bang_noparse(message: types.Message):
+    _, id_, _ = parse_bang_command(message, 'noparse')
+    await bot.send_message(
+        message.chat.id,
+        text=f'*Caution*:\n'
+             f'Website parsing _should not_ be your first Python project\. '
+             f'Please learn `Python programming`, `project configuration`, '
+             f'`module handling` and `debugging` before parsing any websites\. '
+             f'There are many resources for this on the internet\.',
+        parse_mode='MarkdownV2',
+        reply_to_message_id=id_
+    )
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
+    (is_bang_command(msg, 'nogui'))
+)
+@rate_limit(5)
+async def on_bang_nogui(message: types.Message):
+    _, id_, _ = parse_bang_command(message, 'nogui')
+    await bot.send_message(
+        message.chat.id,
+        text=f'*Caution*:\n'
+             f'A GUI application _should not_ be your first Python project\. '
+             f'Please learn `Python programming`, `project configuration`, '
+             f'`module handling` and `debugging` before working with any GUI frameworks\. '
+             f'There are many resources for this on the internet\.',
+        parse_mode='MarkdownV2',
+        reply_to_message_id=id_
+    )
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
+    (is_bang_command(msg, 'noweb'))
+)
+@rate_limit(5)
+async def on_bang_noweb(message: types.Message):
+    _, id_, _ = parse_bang_command(message, 'noweb')
+    await bot.send_message(
+        message.chat.id,
+        text=f'*Caution*:\n'
+             f'A web application _should not_ be your first Python project\. '
+             f'Please learn `Python programming`, `project configuration`, '
+             f'`module handling` and `debugging` before working with any web frameworks\. '
+             f'There are many resources for this on the internet\.',
+        parse_mode='MarkdownV2',
+        reply_to_message_id=id_
+    )
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     _is_yt_in(msg)
 )
 async def on_yt_mention(message: types.Message):
