@@ -284,9 +284,9 @@ async def on_bang_nobot(message: types.Message):
         message.chat.id,
         text=f'*Caution*:\n'
              f'Telegram bot _should not_ be your first Python project\. '
-             f'Please learn `Python programming`, `project configuration`, '
-             f'`module handling` and `debugging` before working with Telegram bots\. '
-             f'There are many resources for this on the internet\.',
+             f'Please learn `Python programming`, `module handling`, '
+             f'`web tech stack basics`, `async programming` and `debugging` '
+             f'before working with Telegram bots\. There are many resources for this on the internet\.',
         parse_mode='MarkdownV2',
         reply_to_message_id=id_
     )
@@ -304,9 +304,9 @@ async def on_bang_noparse(message: types.Message):
     await bot.send_message(
         message.chat.id,
         text=f'*Caution*:\n'
-             f'Website parsing _should not_ be your first Python project\. '
-             f'Please learn `Python programming`, `project configuration`, '
-             f'`module handling` and `debugging` before parsing any websites\. '
+             f'Website parser _should not_ be your first Python project\. '
+             f'Please learn `Python programming`, `module handling`, '
+             f'`web tech stack basics`, `JavaScript basics` and `debugging` before parsing any websites\. '
              f'There are many resources for this on the internet\.',
         parse_mode='MarkdownV2',
         reply_to_message_id=id_
@@ -326,8 +326,8 @@ async def on_bang_nogui(message: types.Message):
         message.chat.id,
         text=f'*Caution*:\n'
              f'A GUI application _should not_ be your first Python project\. '
-             f'Please learn `Python programming`, `project configuration`, '
-             f'`module handling` and `debugging` before working with any GUI frameworks\. '
+             f'Please learn `Python programming`, `module handling`, '
+             f'`event loops` and `debugging` before working with any GUI frameworks\. '
              f'There are many resources for this on the internet\.',
         parse_mode='MarkdownV2',
         reply_to_message_id=id_
@@ -347,9 +347,9 @@ async def on_bang_noweb(message: types.Message):
         message.chat.id,
         text=f'*Caution*:\n'
              f'A web application _should not_ be your first Python project\. '
-             f'Please learn `Python programming`, `project configuration`, '
-             f'`module handling` and `debugging` before working with any web frameworks\. '
-             f'There are many resources for this on the internet\.',
+             f'Please learn `Python programming`, `module handling`, '
+             f'`web tech stack concepts`, `database operation` and `debugging` '
+             f'before working with any web frameworks\. There are many resources for this on the internet\.',
         parse_mode='MarkdownV2',
         reply_to_message_id=id_
     )
