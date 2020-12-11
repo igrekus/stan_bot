@@ -1,5 +1,8 @@
 import logging
+import math
 import random
+import time
+
 import requests
 
 from aiogram import Bot, Dispatcher, executor, types
@@ -20,10 +23,17 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 # TODO move logging to a middleware class: https://surik00.gitbooks.io/aiogram-lessons/content/chapter3.html
 
-@dp.message_handler(lambda msg: is_private_command(msg, 'ban'))
+@dp.message_handler(lambda msg: is_private_command(msg, 'mute'))
 async def on_private_ban(message: types.Message):
-    await bot.delete_message(-1001338616632, 201690)
-    # await bot.restrict_chat_member(-1001338616632, 1319784856, can_send_messages=False)
+    user, period = message.get_args().split(sep=' ', maxsplit=1)
+    until = math.floor(time.time()) + 2000 * 60
+    user = int(user)
+    await bot.restrict_chat_member(-1001338616632, user,
+                                   until_date=until,
+                                   can_send_messages=False,
+                                   can_send_media_messages=False,
+                                   can_send_other_messages=False,
+                                   can_add_web_page_previews=False)
 
 
 @dp.message_handler(lambda msg: is_private_command(msg, 'register'))
@@ -425,10 +435,6 @@ async def on_entity_in_message(message: types.Message):
         print('del message', message)
         await message.delete()
     if 'hypebomber' in message.text:
-        await message.delete()
-    elif 'приватные прокси' in message.text:
-        await message.delete()
-    elif 'socks5' in message.text:
         await message.delete()
     # await bot.send_message(810095709, f'spam? "{message.text}" from {message.from_user}')
 
