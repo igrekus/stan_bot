@@ -306,6 +306,28 @@ async def on_bang_nobot(message: types.Message):
     lambda msg:
     is_handled_chat(msg, handled_chats) and
     not is_banned(msg, banned_users) and
+    (is_bang_command(msg, 'nogame'))
+)
+@rate_limit(5)
+async def on_bang_nogame(message: types.Message):
+    _, id_, _ = parse_bang_command(message, 'nogame')
+    await bot.send_message(
+        message.chat.id,
+        text=f'*Caution*:\n'
+             f'A game _should not_ be your first Python project\. '
+             f'Please learn `Python programming`, `module handling`, '
+             f'`linear algebra basics`, `event loop basics` and `debugging` '
+             f'before attempting to make a game\. There are many resources for this on the internet\. '
+             f'Also, don\'t use Python for games\.',
+        parse_mode='MarkdownV2',
+        reply_to_message_id=id_
+    )
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     (is_bang_command(msg, 'noparse'))
 )
 @rate_limit(5)
