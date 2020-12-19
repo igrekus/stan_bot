@@ -26,7 +26,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 @dp.message_handler(lambda msg: is_private_command(msg, 'mute'))
 async def on_private_ban(message: types.Message):
     user, period = message.get_args().split(sep=' ', maxsplit=1)
-    until = math.floor(time.time()) + 2000 * 60
+    until = math.floor(time.time()) + 20000 * 60
     user = int(user)
     await bot.restrict_chat_member(-1001338616632, user,
                                    until_date=until,
