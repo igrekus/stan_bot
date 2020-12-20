@@ -25,10 +25,17 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 @dp.message_handler(lambda msg: is_private_command(msg, 'mute'))
 async def on_private_ban(message: types.Message):
-    user, period = message.get_args().split(sep=' ', maxsplit=1)
-    until = math.floor(time.time()) + 20000 * 60
+    args = message.get_args().split(sep=' ', maxsplit=1)
+    try:
+        user, period = args.split(maxsplit=1)
+    except ValueError:
+        user = args
+        period = 360
     user = int(user)
-    await bot.restrict_chat_member(-1001338616632, user,
+    period = float(period)
+    until = math.floor(time.time()) + period * 60 * 60
+    await bot.restrict_chat_member(chai_id=-1001338616632,
+                                   user_id=user,
                                    until_date=until,
                                    can_send_messages=False,
                                    can_send_media_messages=False,
