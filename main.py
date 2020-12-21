@@ -1,5 +1,8 @@
 import logging
+import math
 import random
+import time
+
 import requests
 
 from aiogram import Bot, Dispatcher, executor, types
@@ -20,10 +23,17 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 # TODO move logging to a middleware class: https://surik00.gitbooks.io/aiogram-lessons/content/chapter3.html
 
-@dp.message_handler(lambda msg: is_private_command(msg, 'ban'))
+@dp.message_handler(lambda msg: is_private_command(msg, 'mute'))
 async def on_private_ban(message: types.Message):
-    await bot.delete_message(-1001338616632, 201690)
-    # await bot.restrict_chat_member(-1001338616632, 1319784856, can_send_messages=False)
+    user, period = message.get_args().split(sep=' ', maxsplit=1)
+    until = math.floor(time.time()) + 2000 * 60
+    user = int(user)
+    await bot.restrict_chat_member(-1001338616632, user,
+                                   until_date=until,
+                                   can_send_messages=False,
+                                   can_send_media_messages=False,
+                                   can_send_other_messages=False,
+                                   can_add_web_page_previews=False)
 
 
 @dp.message_handler(lambda msg: is_private_command(msg, 'register'))
@@ -296,6 +306,28 @@ async def on_bang_nobot(message: types.Message):
     lambda msg:
     is_handled_chat(msg, handled_chats) and
     not is_banned(msg, banned_users) and
+    (is_bang_command(msg, 'nogame'))
+)
+@rate_limit(5)
+async def on_bang_nogame(message: types.Message):
+    _, id_, _ = parse_bang_command(message, 'nogame')
+    await bot.send_message(
+        message.chat.id,
+        text=f'*Caution*:\n'
+             f'A game _should not_ be your first Python project\. '
+             f'Please learn `Python programming`, `module handling`, '
+             f'`linear algebra basics`, `event loop basics` and `debugging` '
+             f'before attempting to make a game\. There are many resources for this on the internet\. '
+             f'Also, don\'t use Python for games\.',
+        parse_mode='MarkdownV2',
+        reply_to_message_id=id_
+    )
+
+
+@dp.message_handler(
+    lambda msg:
+    is_handled_chat(msg, handled_chats) and
+    not is_banned(msg, banned_users) and
     (is_bang_command(msg, 'noparse'))
 )
 @rate_limit(5)
@@ -425,10 +457,6 @@ async def on_entity_in_message(message: types.Message):
         print('del message', message)
         await message.delete()
     if 'hypebomber' in message.text:
-        await message.delete()
-    elif 'приватные прокси' in message.text:
-        await message.delete()
-    elif 'socks5' in message.text:
         await message.delete()
     # await bot.send_message(810095709, f'spam? "{message.text}" from {message.from_user}')
 
