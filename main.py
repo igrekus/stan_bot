@@ -318,7 +318,7 @@ async def on_bang_nogame(message: types.Message):
              f'Please learn `Python programming`, `module handling`, '
              f'`linear algebra basics`, `event loop basics` and `debugging` '
              f'before attempting to make a game\. There are many resources for this on the internet\. '
-             f'Also, don\'t use Python for games\.',
+             f'Also, don\'t write games in Python\.',
         parse_mode='MarkdownV2',
         reply_to_message_id=id_
     )
