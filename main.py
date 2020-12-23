@@ -34,7 +34,7 @@ async def on_private_ban(message: types.Message):
     user = int(user)
     period = float(period)
     until = math.floor(time.time()) + period * 60 * 60
-    await bot.restrict_chat_member(chai_id=-1001338616632,
+    await bot.restrict_chat_member(chat_id=-1001338616632,
                                    user_id=user,
                                    until_date=until,
                                    can_send_messages=False,
