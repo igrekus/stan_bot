@@ -28,7 +28,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 async def on_private_ban(message: types.Message):
     args = message.get_args().split(sep=' ', maxsplit=1)
     try:
-        user, period = args.split(maxsplit=1)
+        user, period = args
     except ValueError:
         user = args
         period = 360
