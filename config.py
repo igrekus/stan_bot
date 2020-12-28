@@ -25,6 +25,20 @@ bot_admins = [SELF_USER]
 handled_chats = [PY_CHAT_ID, TEST_CHAT_ID]
 chat_admins = [810095709]
 banned_users = {817523974, 1078771932, 988327820, 875981908, 1319784856, 1175535795, 1353007865, 500423762}
+allowed_to_add = {
+    292830777: {
+        'username': 'baa lique',
+        'times': 3
+    },
+    301703093: {
+        'username': 'Denis',
+        'times': 2
+    },
+    562159867: {
+        'username': 'Andy',
+        'times': 1
+    },
+}
 
 chat_alias = {
     'py': PY_CHAT_ID
