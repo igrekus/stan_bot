@@ -8,7 +8,8 @@ __all__ = [
     'is_private_admin_message',
     'is_bang_command',
     'is_handled_chat',
-    'is_banned'
+    'is_banned',
+    'is_user_allowed_to_add'
 ]
 
 
@@ -43,3 +44,7 @@ def is_handled_chat(message: types.Message, handled_chats: list):
 
 def is_banned(message: types.Message, banned_users: list):
     return message['from'].id in banned_users
+
+
+def is_user_allowed_to_add(message: types.Message, allowed_to_add: list):
+    return message['from'].id in allowed_to_add

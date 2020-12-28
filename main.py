@@ -11,7 +11,8 @@ from aiogram.types import ContentType
 
 from middleware import rate_limit, ThrottlingMiddleware
 
-from config import proxy, token, rules_link, engine_link, google_link, lat_rus_map, qdb, bot_admins, bot_auth, chat_alias, handled_chats, banned_users
+from config import proxy, token, rules_link, engine_link, google_link, lat_rus_map, qdb, bot_admins, bot_auth, \
+    chat_alias, handled_chats, banned_users, allowed_to_add
 from filters import *
 from helpers import *
 
@@ -79,11 +80,16 @@ async def on_admin_private_message(message: types.Message):
     lambda msg:
     is_handled_chat(msg, handled_chats) and
     is_bang_command(msg, 'add') and
-    is_user_admin(msg, bot_admins)
+    (is_user_admin(msg, bot_admins) or is_user_allowed_to_add(msg, allowed_to_add))
 )
 @rate_limit(10)
 async def on_bang_add(message: types.Message):
     logging.log(logging.INFO, f'!add from: {message["from"]} - "{message.text}"')
+
+    user_id = message['from'].id
+    if not is_user_admin(message, bot_admins):
+        if allowed_to_add[user_id]['times'] == 0:
+            return
 
     is_reply, id_, args = parse_bang_command(message, 'add')
     if not args:
@@ -93,6 +99,12 @@ async def on_bang_add(message: types.Message):
     qdb.add(new_quote)
     logging.log(logging.INFO, f'Add quote "{new_quote}"')
     await message.reply(f'добавил: {new_quote["text"]}', reply=False)
+
+    if not is_user_admin(message, bot_admins):
+        times = allowed_to_add[user_id]['times']
+        if times > 0:
+            times -= 1
+        allowed_to_add[user_id]['times'] = times
 
 
 @dp.message_handler(
