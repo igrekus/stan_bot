@@ -24,7 +24,9 @@ SELF_USER = creds['self_user']
 bot_admins = [SELF_USER]
 handled_chats = [PY_CHAT_ID, TEST_CHAT_ID]
 chat_admins = [810095709]
-banned_users = {817523974, 1078771932, 988327820, 875981908, 1319784856, 1175535795, 1353007865, 500423762}
+
+# TODO refactor: move to database
+banned_users = {1031419184, 817523974, 1078771932, 988327820, 875981908, 1319784856, 1175535795, 1353007865, 500423762}
 allowed_to_add = {
     292830777: {
         'username': 'baa lique',
