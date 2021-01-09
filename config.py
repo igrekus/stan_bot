@@ -34,7 +34,7 @@ allowed_to_add = {
     },
     301703093: {
         'username': 'Denis',
-        'times': 2
+        'times': 1
     },
     562159867: {
         'username': 'Andy',
