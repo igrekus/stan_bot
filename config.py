@@ -22,7 +22,7 @@ SELF_USER = creds['self_user']
 
 # TODO move auth stuff to the db
 bot_admins = [SELF_USER]
-handled_chats = [PY_CHAT_ID, TEST_CHAT_ID]
+handled_chats = [PY_CHAT_ID, TEST_CHAT_ID, -1001473452731]
 chat_admins = [810095709]
 
 # TODO refactor: move to database
